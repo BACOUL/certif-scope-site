@@ -11,7 +11,6 @@
   "dependencies": {
     "@stripe/stripe-js": "^8.6.1",
     "@tailwindcss/postcss": "latest",
-    "@types/stripe-v3": "^3.1.33",
     "chrome-aws-lambda": "10.1.0",
     "jspdf": "^4.0.0",
     "lucide-react": "latest",
