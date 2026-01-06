@@ -1,20 +1,25 @@
+import { useState } from 'react';
 import AssessmentForm from '../components/AssessmentForm';
 import Link from 'next/link';
 
 export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <div id="top" className="min-h-screen bg-[#F8FAFC] font-sans text-[#1E293B]">
 
       {/* HEADER */}
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col items-center gap-4 md:flex-row md:justify-between md:gap-0">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
 
-          <div className="text-2xl font-black tracking-tight text-center md:text-left">
+          {/* BRAND */}
+          <div className="text-xl font-black tracking-tight">
             <span className="text-[#0B3A63]">Certif-</span>
             <span className="text-[#1FB6C1]">Scope</span>
           </div>
 
-          <nav className="flex gap-6 text-xs font-bold uppercase tracking-widest text-[#64748B]">
+          {/* DESKTOP NAV */}
+          <nav className="hidden md:flex gap-8 text-xs font-bold uppercase tracking-widest text-[#64748B]">
             <a href="#how-it-works" className="hover:text-[#1FB6C1] transition">
               How it works
             </a>
@@ -29,12 +34,44 @@ export default function Home() {
             </Link>
           </nav>
 
+          {/* MOBILE MENU BUTTON */}
+          <button
+            className="md:hidden text-[#0B3A63]"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="4" y1="12" x2="20" y2="12" />
+              <line x1="4" y1="18" x2="20" y2="18" />
+            </svg>
+          </button>
         </div>
+
+        {/* MOBILE NAV */}
+        {menuOpen && (
+          <div className="md:hidden bg-white border-t border-slate-200">
+            <nav className="flex flex-col px-6 py-6 gap-4 text-sm font-semibold text-[#475569]">
+              <a href="#how-it-works" onClick={() => setMenuOpen(false)}>
+                How it works
+              </a>
+              <a href="#methodology" onClick={() => setMenuOpen(false)}>
+                Methodology
+              </a>
+              <a href="#faq" onClick={() => setMenuOpen(false)}>
+                FAQ
+              </a>
+              <Link href="/legal" onClick={() => setMenuOpen(false)}>
+                Legal
+              </Link>
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* HERO */}
-      <section className="max-w-5xl mx-auto px-6 py-24 text-center">
-        <span className="inline-block mb-6 px-4 py-1 text-xs font-bold uppercase tracking-widest rounded-full bg-[#E6F6F7] text-[#0B3A63]">
+      <section className="max-w-5xl mx-auto px-6 py-20 md:py-28 text-center">
+        <span className="inline-block mb-5 px-4 py-1 text-xs font-bold uppercase tracking-widest rounded-full bg-[#E6F6F7] text-[#0B3A63]">
           ESG pre-compliance for SMEs
         </span>
 
@@ -46,7 +83,7 @@ export default function Home() {
           </span>
         </h1>
 
-        <p className="text-lg text-[#475569] leading-relaxed max-w-3xl mx-auto mb-10">
+        <p className="text-base md:text-lg text-[#475569] leading-relaxed max-w-3xl mx-auto mb-10">
           Generate a standardized, spend-based carbon footprint attestation
           aligned with the <strong>VSME standard</strong> and compatible with
           <strong> CSRD value-chain expectations</strong>.
@@ -67,49 +104,22 @@ export default function Home() {
       {/* TRUST */}
       <section className="max-w-6xl mx-auto px-6 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <h3 className="font-bold text-[#0B3A63] mb-2">
-              What this is
-            </h3>
-            <p className="text-sm text-[#475569]">
-              A standardized, methodological carbon footprint attestation
-              designed for ESG reporting, partner questionnaires and procurement.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <h3 className="font-bold text-[#0B3A63] mb-2">
-              What this is not
-            </h3>
-            <p className="text-sm text-[#475569]">
-              Not a CSRD filing. Not a certified audit. Not a regulatory
-              declaration.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <h3 className="font-bold text-[#0B3A63] mb-2">
-              Privacy-first
-            </h3>
-            <p className="text-sm text-[#475569]">
-              All calculations are performed locally in your browser.
-              No raw data is transmitted or stored.
-            </p>
-          </div>
-
+          {[
+            ['What this is', 'A standardized methodological carbon footprint attestation for ESG and procurement.'],
+            ['What this is not', 'Not a CSRD filing. Not a certified audit. Not a regulatory declaration.'],
+            ['Privacy-first', 'All calculations are performed locally. No raw data is stored or transmitted.']
+          ].map(([title, text]) => (
+            <div key={title} className="bg-white rounded-xl border border-slate-200 p-6">
+              <h3 className="font-bold text-[#0B3A63] mb-2">{title}</h3>
+              <p className="text-sm text-[#475569]">{text}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* HOW IT WORKS */}
       <section id="how-it-works" className="bg-white py-20 px-6">
-        <div className="max-w-6xl mx-auto text-center mb-16">
-          <h2 className="text-2xl md:text-3xl font-black text-[#0B3A63]">
-            How it works
-          </h2>
-        </div>
-
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
           {[
             ['01', 'Enter your data', 'Revenue and energy expenses only.'],
             ['02', 'Instant estimation', 'Spend-based calculation using recognized factors.'],
@@ -126,43 +136,25 @@ export default function Home() {
 
       {/* METHODOLOGY */}
       <section id="methodology" className="bg-[#E6F6F7] py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-black mb-8 text-center text-[#0B3A63]">
+        <div className="max-w-4xl mx-auto space-y-6 text-[#334155]">
+          <h2 className="text-2xl md:text-3xl font-black text-center text-[#0B3A63]">
             Methodology
           </h2>
-
-          <div className="space-y-6 text-[#334155]">
-            <p>
-              Certif-Scope applies a <strong>spend-based estimation method</strong>
-              inspired by the <strong>GHG Protocol</strong>, using emission factors
-              from the <strong>ADEME Base Empreinte</strong>.
-            </p>
-
-            <ul className="bg-white rounded-xl border border-slate-200 p-6 list-disc pl-6 text-sm space-y-2">
-              <li><strong>Scope 1:</strong> Direct emissions</li>
-              <li><strong>Scope 2:</strong> Indirect energy emissions</li>
-              <li><strong>Scope 3:</strong> Value-chain emissions</li>
-            </ul>
-
-            <p className="text-sm text-[#475569]">
-              Results are indicative and intended for pre-compliance and partner
-              reporting only.
-            </p>
-          </div>
+          <p>
+            Certif-Scope applies a <strong>spend-based estimation method</strong>
+            inspired by the <strong>GHG Protocol</strong>, using emission factors
+            from the <strong>ADEME Base Empreinte</strong>.
+          </p>
+          <ul className="bg-white rounded-xl border border-slate-200 p-6 list-disc pl-6 text-sm space-y-2">
+            <li><strong>Scope 1:</strong> Direct emissions</li>
+            <li><strong>Scope 2:</strong> Indirect energy emissions</li>
+            <li><strong>Scope 3:</strong> Value-chain emissions</li>
+          </ul>
         </div>
       </section>
 
       {/* FORM */}
       <section id="assessment" className="max-w-4xl mx-auto py-24 px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-black text-[#0B3A63]">
-            Start your assessment
-          </h2>
-          <p className="text-[#64748B] mt-2">
-            Free preview · €99 only if you download the attestation
-          </p>
-        </div>
-
         <AssessmentForm />
       </section>
 
@@ -178,8 +170,8 @@ export default function Home() {
             ['Is my data stored?', 'No. All calculations run locally in your browser.'],
             ['Who is this for?', 'SMEs responding to ESG requests from banks or clients.'],
             ['What do I receive?', 'A downloadable PDF carbon footprint attestation.']
-          ].map(([q, a], i) => (
-            <div key={i} className="bg-white border border-slate-200 rounded-xl p-6">
+          ].map(([q, a]) => (
+            <div key={q} className="bg-white border border-slate-200 rounded-xl p-6">
               <h3 className="font-bold text-[#0B3A63] mb-1">{q}</h3>
               <p className="text-sm text-[#475569]">{a}</p>
             </div>
@@ -201,4 +193,4 @@ export default function Home() {
 
     </div>
   );
-}
+            }
