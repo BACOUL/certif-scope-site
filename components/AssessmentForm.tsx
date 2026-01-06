@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { calculateCarbonFootprint } from '../lib/carbonEngine';
 
 export default function AssessmentForm() {
   const [formData, setFormData] = useState({
@@ -9,107 +10,101 @@ export default function AssessmentForm() {
     electricitySpent: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [results, setResults] = useState<any>(null);
+
+  const handleCalculate = (e: React.FormEvent) => {
     e.preventDefault();
-    // Prochaine étape : Intégration Stripe ici
-    alert("Redirection to secure payment gateway (Stripe)...");
+    // Utilisation du moteur de calcul certifié
+    const calculation = calculateCarbonFootprint(formData);
+    setResults(calculation);
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <form onSubmit={handleSubmit} className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
+    <div className="max-w-2xl mx-auto space-y-8">
+      <form onSubmit={handleCalculate} className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
         <div className="bg-blue-900 p-6">
           <h2 className="text-xl font-bold text-white">Carbon Footprint Calculator</h2>
-          <p className="text-blue-200 text-sm">Enter your 2025 financial data to generate your certificate.</p>
+          <p className="text-blue-200 text-sm">Calculations based on GHG Protocol standards.</p>
         </div>
         
         <div className="p-8 space-y-6">
-          {/* Company Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Company Name</label>
             <input 
               type="text" 
               required 
-              placeholder="e.g. Acme Corp Intl"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
               onChange={(e) => setFormData({...formData, companyName: e.target.value})}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Sector */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Business Sector</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Sector</label>
               <select 
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white"
                 onChange={(e) => setFormData({...formData, sector: e.target.value})}
               >
-                <option value="services">Services / Consulting</option>
-                <option value="retail">Retail / Wholesale</option>
-                <option value="construction">Construction</option>
+                <option value="services">Services</option>
+                <option value="retail">Retail</option>
                 <option value="manufacturing">Manufacturing</option>
-                <option value="transport">Transport / Logistics</option>
               </select>
             </div>
-
-            {/* Revenue */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Annual Revenue (€)</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Revenue (€)</label>
               <input 
                 type="number" 
                 required 
-                placeholder="Total turnover"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200"
                 onChange={(e) => setFormData({...formData, revenue: e.target.value})}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-50">
-            {/* Fuel */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Fuel Expenses (€)</label>
-              <div className="relative">
-                <input 
-                  type="number" 
-                  required 
-                  placeholder="Gas / Diesel"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
-                  onChange={(e) => setFormData({...formData, fuelSpent: e.target.value})}
-                />
-              </div>
-            </div>
-
-            {/* Electricity */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Electricity Bill (€)</label>
-              <input 
-                type="number" 
-                required 
-                placeholder="Annual total"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
-                onChange={(e) => setFormData({...formData, electricitySpent: e.target.value})}
-              />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+            <input type="number" placeholder="Fuel (€)" className="w-full px-4 py-3 rounded-xl border border-gray-200" onChange={(e) => setFormData({...formData, fuelSpent: e.target.value})} />
+            <input type="number" placeholder="Electricity (€)" className="w-full px-4 py-3 rounded-xl border border-gray-200" onChange={(e) => setFormData({...formData, electricitySpent: e.target.value})} />
           </div>
 
-          {/* Action Button */}
-          <button 
-            type="submit" 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-200 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
-          >
-            Generate My Certificate (99€)
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all">
+            Calculate My Footprint
           </button>
-
-          <div className="flex items-center justify-center gap-4 text-[11px] text-gray-400 uppercase tracking-widest font-medium">
-            <span>Secure Data</span>
-            <span className="h-1 w-1 bg-gray-300 rounded-full"></span>
-            <span>GDPR Compliant</span>
-            <span className="h-1 w-1 bg-gray-300 rounded-full"></span>
-            <span>CSRD Standard</span>
-          </div>
         </div>
       </form>
+
+      {/* AFFICHAGE DES RÉSULTATS (PREVIEW) */}
+      {results && (
+        <div className="bg-slate-900 rounded-2xl p-8 text-white shadow-2xl animate-fade-in">
+          <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            Your Carbon Report <span className="text-sm font-normal bg-blue-500 px-2 py-1 rounded text-white italic">Preview</span>
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center">
+              <p className="text-slate-400 text-xs uppercase mb-1">Direct (Scope 1)</p>
+              <p className="text-xl font-bold">{results.scope1} tCO2e</p>
+            </div>
+            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center">
+              <p className="text-slate-400 text-xs uppercase mb-1">Energy (Scope 2)</p>
+              <p className="text-xl font-bold">{results.scope2} tCO2e</p>
+            </div>
+            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center">
+              <p className="text-slate-400 text-xs uppercase mb-1">Supply Chain (Scope 3)</p>
+              <p className="text-xl font-bold">{results.scope3} tCO2e</p>
+            </div>
+          </div>
+
+          <div className="bg-blue-600 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <p className="text-blue-100 text-sm">Total Estimated Footprint</p>
+              <p className="text-4xl font-extrabold">{results.total} tCO2e</p>
+            </div>
+            <button className="bg-white text-blue-900 font-bold py-3 px-8 rounded-full hover:bg-blue-50 transition-all">
+              Get Official Certificate (99€)
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
