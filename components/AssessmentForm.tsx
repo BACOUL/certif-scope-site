@@ -8,8 +8,8 @@ type FormState = {
   companyName: string;
   sector: CarbonInput['sector'];
   revenue: number;
-  fuelSpent?: number;
-  electricitySpent?: number;
+  fuelSpent: number;
+  electricitySpent: number;
 };
 
 export default function AssessmentForm() {
@@ -29,8 +29,8 @@ export default function AssessmentForm() {
     const calculation = calculateCarbonFootprint({
       sector: formData.sector,
       revenue: Number(formData.revenue),
-      fuelSpent: Number(formData.fuelSpent || 0),
-      electricitySpent: Number(formData.electricitySpent || 0)
+      fuelSpent: Number(formData.fuelSpent),
+      electricitySpent: Number(formData.electricitySpent)
     });
 
     setResults(calculation);
@@ -38,21 +38,24 @@ export default function AssessmentForm() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-10">
+
+      {/* FORM */}
       <form
         onSubmit={handleCalculate}
-        className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-xl"
+        className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden"
       >
-        <div className="bg-blue-900 px-8 py-6">
-          <h2 className="text-xl font-bold text-white">
-            Carbon Footprint Assessment
-          </h2>
-          <p className="text-blue-200 text-sm mt-1">
-            Standardized estimation based on recognized methodologies.
+        <div className="px-8 py-6 border-b border-slate-200">
+          <h3 className="text-lg font-bold text-[#0B3A63]">
+            Carbon footprint assessment
+          </h3>
+          <p className="text-sm text-slate-500 mt-1">
+            Free preview · No account required · Local calculation
           </p>
         </div>
 
         <div className="p-8 space-y-8">
-          {/* Company */}
+
+          {/* COMPANY */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Company name
@@ -60,65 +63,67 @@ export default function AssessmentForm() {
             <input
               type="text"
               required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200"
+              placeholder="Your company"
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#1FB6C1] focus:border-[#1FB6C1] outline-none"
               onChange={(e) =>
                 setFormData({ ...formData, companyName: e.target.value })
               }
             />
           </div>
 
-          {/* Sector & Revenue */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Business sector
-              </label>
-              <select
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white"
-                value={formData.sector}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    sector: e.target.value as CarbonInput['sector']
-                  })
-                }
-              >
-                <option value="services">Services</option>
-                <option value="retail">Retail</option>
-                <option value="construction">Construction</option>
-                <option value="manufacturing">Manufacturing</option>
-                <option value="transport">Transport</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Annual revenue (€)
-              </label>
-              <input
-                type="number"
-                required
-                className="w-full px-4 py-3 rounded-xl border border-slate-200"
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    revenue: Number(e.target.value)
-                  })
-                }
-              />
-            </div>
+          {/* SECTOR */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Business sector
+            </label>
+            <select
+              value={formData.sector}
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-[#1FB6C1] focus:border-[#1FB6C1] outline-none"
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  sector: e.target.value as CarbonInput['sector']
+                })
+              }
+            >
+              <option value="services">Services</option>
+              <option value="retail">Retail</option>
+              <option value="construction">Construction</option>
+              <option value="manufacturing">Manufacturing</option>
+              <option value="transport">Transport</option>
+            </select>
           </div>
 
-          {/* Energy */}
+          {/* REVENUE */}
           <div>
-            <p className="text-sm font-semibold text-slate-700 mb-3">
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Annual revenue (€)
+            </label>
+            <input
+              type="number"
+              required
+              placeholder="e.g. 750000"
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#1FB6C1] focus:border-[#1FB6C1] outline-none"
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  revenue: Number(e.target.value)
+                })
+              }
+            />
+          </div>
+
+          {/* ENERGY */}
+          <div className="bg-slate-50 rounded-xl p-6 space-y-4">
+            <p className="text-sm font-semibold text-slate-700">
               Energy-related expenses (annual)
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input
                 type="number"
                 placeholder="Fuel expenses (€)"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-[#1FB6C1] focus:border-[#1FB6C1] outline-none"
                 onChange={(e) =>
                   setFormData({
                     ...formData,
@@ -129,7 +134,7 @@ export default function AssessmentForm() {
               <input
                 type="number"
                 placeholder="Electricity expenses (€)"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-[#1FB6C1] focus:border-[#1FB6C1] outline-none"
                 onChange={(e) =>
                   setFormData({
                     ...formData,
@@ -140,39 +145,58 @@ export default function AssessmentForm() {
             </div>
           </div>
 
+          {/* CTA */}
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition"
+            className="w-full bg-[#1FB6C1] hover:bg-[#17A2AC] text-white font-bold py-4 rounded-xl shadow-md transition"
           >
-            Calculate my carbon footprint
+            Calculate my footprint
           </button>
         </div>
       </form>
 
+      {/* RESULTS */}
       {results && (
-        <div className="bg-slate-900 rounded-2xl p-8 text-white shadow-2xl">
-          <h3 className="text-2xl font-bold mb-6">
+        <div className="bg-[#0B3A63] rounded-2xl p-8 text-white shadow-xl">
+          <h3 className="text-xl font-bold mb-6 text-center">
             Carbon footprint preview
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-slate-800 p-4 rounded-xl text-center">
-              <p className="text-slate-400 text-xs uppercase mb-1">Scope 1</p>
-              <p className="text-xl font-bold">{results.scope1} tCO₂e</p>
-            </div>
-            <div className="bg-slate-800 p-4 rounded-xl text-center">
-              <p className="text-slate-400 text-xs uppercase mb-1">Scope 2</p>
-              <p className="text-xl font-bold">{results.scope2} tCO₂e</p>
-            </div>
-            <div className="bg-slate-800 p-4 rounded-xl text-center">
-              <p className="text-slate-400 text-xs uppercase mb-1">Scope 3</p>
-              <p className="text-xl font-bold">{results.scope3} tCO₂e</p>
-            </div>
+            {[
+              ['Scope 1', results.scope1],
+              ['Scope 2', results.scope2],
+              ['Scope 3', results.scope3]
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="bg-[#102E4A] rounded-xl p-4 text-center"
+              >
+                <p className="text-xs uppercase text-slate-300 mb-1">
+                  {label}
+                </p>
+                <p className="text-xl font-bold">
+                  {value} tCO₂e
+                </p>
+              </div>
+            ))}
           </div>
 
-          <p className="text-3xl font-extrabold text-center">
-            Total: {results.total} tCO₂e
-          </p>
+          <div className="text-center">
+            <p className="text-sm text-slate-300 mb-1">
+              Estimated total footprint
+            </p>
+            <p className="text-3xl font-extrabold mb-6">
+              {results.total} tCO₂e
+            </p>
+
+            <button
+              type="button"
+              className="w-full bg-white text-[#0B3A63] font-bold py-4 rounded-xl hover:bg-slate-100 transition"
+            >
+              Get the official attestation (€99)
+            </button>
+          </div>
         </div>
       )}
     </div>
