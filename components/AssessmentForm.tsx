@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
 import {
   calculateCarbonFootprint,
   CarbonInput
@@ -35,21 +36,32 @@ export default function AssessmentForm() {
     });
 
     setResults(calculation);
+
+    // Save in localStorage for success page
+    localStorage.setItem("certif-scope-report", JSON.stringify({
+      companyName: formData.companyName,
+      ...calculation
+    }));
+  };
+
+  const handleStripe = async () => {
+    const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
+    const res = await fetch('/api/checkout', { method: "POST" });
+    const data = await res.json();
+
+    await stripe?.redirectToCheckout({ sessionId: data.id });
   };
 
   useEffect(() => {
     if (results && resultsRef.current) {
-      resultsRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
+      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [results]);
 
   return (
     <div className="max-w-2xl mx-auto space-y-12">
 
-      {/* FORM */}
       <form
         onSubmit={handleCalculate}
         className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden"
@@ -65,7 +77,6 @@ export default function AssessmentForm() {
 
         <div className="p-8 space-y-8">
 
-          {/* COMPANY */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Company name
@@ -73,24 +84,20 @@ export default function AssessmentForm() {
             <input
               type="text"
               required
-              placeholder="Your company"
-              className="w-full px-4 py-3 rounded-xl border border-slate-300
-              focus:ring-2 focus:ring-[#1FB6C1] focus:border-[#1FB6C1] outline-none"
+              className="w-full px-4 py-3 rounded-xl border border-slate-300"
               onChange={(e) =>
                 setFormData({ ...formData, companyName: e.target.value })
               }
             />
           </div>
 
-          {/* SECTOR */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Business sector
             </label>
             <select
               value={formData.sector}
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white
-              focus:ring-2 focus:ring-[#1FB6C1] focus:border-[#1FB6C1] outline-none"
+              className="w-full px-4 py-3 rounded-xl border"
               onChange={(e) =>
                 setFormData({
                   ...formData,
@@ -106,7 +113,6 @@ export default function AssessmentForm() {
             </select>
           </div>
 
-          {/* REVENUE */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Annual revenue (€)
@@ -114,9 +120,7 @@ export default function AssessmentForm() {
             <input
               type="number"
               required
-              placeholder="e.g. 750000"
-              className="w-full px-4 py-3 rounded-xl border border-slate-300
-              focus:ring-2 focus:ring-[#1FB6C1] focus:border-[#1FB6C1] outline-none"
+              className="w-full px-4 py-3 rounded-xl border"
               onChange={(e) =>
                 setFormData({
                   ...formData,
@@ -126,7 +130,6 @@ export default function AssessmentForm() {
             />
           </div>
 
-          {/* ENERGY */}
           <div className="bg-slate-50 rounded-xl p-6 space-y-4">
             <p className="text-sm font-semibold text-slate-700">
               Energy-related expenses (annual)
@@ -136,7 +139,7 @@ export default function AssessmentForm() {
               <input
                 type="number"
                 placeholder="Fuel expenses (€)"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white"
+                className="w-full px-4 py-3 rounded-xl border"
                 onChange={(e) =>
                   setFormData({
                     ...formData,
@@ -144,11 +147,10 @@ export default function AssessmentForm() {
                   })
                 }
               />
-
               <input
                 type="number"
                 placeholder="Electricity expenses (€)"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white"
+                className="w-full px-4 py-3 rounded-xl border"
                 onChange={(e) =>
                   setFormData({
                     ...formData,
@@ -161,19 +163,15 @@ export default function AssessmentForm() {
 
           <button
             type="submit"
-            className="w-full bg-[#1FB6C1] hover:bg-[#17A2AC] text-white font-bold py-4 rounded-xl shadow-md transition"
+            className="w-full bg-[#1FB6C1] text-white font-bold py-4 rounded-xl"
           >
             Calculate my footprint
           </button>
         </div>
       </form>
 
-      {/* RESULTS */}
       {results && (
-        <div
-          ref={resultsRef}
-          className="bg-white rounded-2xl border border-slate-200 shadow-lg p-8"
-        >
+        <div ref={resultsRef} className="bg-white rounded-2xl border p-8 shadow-lg">
           <h3 className="text-xl font-bold mb-6 text-center text-[#0B3A63]">
             Carbon footprint preview
           </h3>
@@ -184,41 +182,28 @@ export default function AssessmentForm() {
               ['Scope 2', results.scope2],
               ['Scope 3', results.scope3]
             ].map(([label, value]) => (
-              <div
-                key={label}
-                className="border border-slate-200 rounded-xl p-4 text-center bg-slate-50"
-              >
-                <p className="text-xs uppercase text-slate-500 mb-1">
-                  {label}
-                </p>
-                <p className="text-xl font-bold text-[#0B3A63]">
-                  {value} tCO₂e
-                </p>
+              <div key={label} className="border rounded-xl p-4 text-center bg-slate-50">
+                <p className="text-xs uppercase text-slate-500 mb-1">{label}</p>
+                <p className="text-xl font-bold text-[#0B3A63]">{value} tCO₂e</p>
               </div>
             ))}
           </div>
 
           <div className="text-center">
-            <p className="text-sm text-slate-500 mb-1">
-              Estimated total footprint
-            </p>
+            <p className="text-sm text-slate-500 mb-1">Estimated total footprint</p>
             <p className="text-3xl font-extrabold text-[#0B3A63] mb-6">
               {results.total} tCO₂e
             </p>
 
-            {/* DIRECT STRIPE CHECKOUT LINK */}
-            <a
-              href="https://buy.stripe.com/test_5kQ9ATf031jK6EidNd1kA00"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full inline-flex justify-center bg-[#1FB6C1]
-              text-white font-bold py-4 rounded-xl hover:bg-[#17A2AC] transition"
+            <button
+              onClick={handleStripe}
+              className="w-full bg-[#1FB6C1] text-white font-bold py-4 rounded-xl"
             >
               Download official attestation (€99)
-            </a>
+            </button>
           </div>
         </div>
       )}
     </div>
   );
-      }
+              }
