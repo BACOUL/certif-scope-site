@@ -55,6 +55,49 @@ export default function Home() {
         </a>
       </header>
 
+      {/* CREDIBILITY BLOCKS */}
+      <section className="max-w-6xl mx-auto px-6 pb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          <div className="bg-white border border-slate-200 rounded-2xl p-8">
+            <h3 className="font-bold text-[#0B3A63] mb-3">
+              What this attestation is
+            </h3>
+            <p className="text-sm text-[#475569] leading-relaxed">
+              Certif-Scope provides a <strong>methodological carbon footprint
+              attestation</strong> based on standardized estimation methods.
+              The document is designed for <strong>pre-compliance</strong>,
+              partner reporting, ESG questionnaires and procurement processes.
+            </p>
+          </div>
+
+          <div className="bg-white border border-slate-200 rounded-2xl p-8">
+            <h3 className="font-bold text-[#0B3A63] mb-3">
+              What this attestation is not
+            </h3>
+            <p className="text-sm text-[#475569] leading-relaxed">
+              This attestation is <strong>not a statutory CSRD filing</strong>,
+              <strong>not a certified audit</strong>, and
+              <strong>not a regulatory declaration</strong>.
+              It does not replace an assessment conducted by an accredited
+              third party when legally required.
+            </p>
+          </div>
+
+        </div>
+
+        <div className="mt-8 bg-[#F8FAFC] border border-slate-200 rounded-2xl p-8">
+          <h3 className="font-bold text-[#0B3A63] mb-3">
+            Privacy & data handling
+          </h3>
+          <p className="text-sm text-[#475569] leading-relaxed">
+            All calculations are performed <strong>locally in your browser</strong>.
+            No raw financial or accounting data is transmitted or stored.
+            Only the final aggregated results are used to generate the attestation.
+          </p>
+        </div>
+      </section>
+
       {/* WHY IT MATTERS */}
       <section className="bg-[#E6F6F7] py-28 px-6">
         <div className="max-w-6xl mx-auto text-center mb-16">
