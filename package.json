@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@stripe/stripe-js": "1.56.0",
+    "@stripe/stripe-js": "1.54.2",
     "@tailwindcss/postcss": "latest",
     "chrome-aws-lambda": "10.1.0",
     "jspdf": "^4.0.0",
