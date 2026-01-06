@@ -65,7 +65,7 @@ export default async function handler(
     await page.setContent(html, { waitUntil: 'networkidle0' });
 
     const pdf = await page.pdf({
-      format: 'A4',
+      format: 'a4', // ✅ IMPORTANT : minuscules
       printBackground: true,
       margin: {
         top: '20mm',
@@ -88,4 +88,4 @@ export default async function handler(
     console.error('[ATTESTATION_ERROR]', error);
     return res.status(500).json({ error: 'Attestation generation failed' });
   }
-  }
+      }
