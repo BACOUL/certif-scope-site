@@ -10,68 +10,123 @@ export default function Home() {
           CERTIF-SCOPE
         </div>
         <div className="flex gap-6 text-sm font-bold text-slate-500 uppercase tracking-widest">
-          <Link href="/legal" className="hover:text-blue-600">
-            Legal
-          </Link>
+          <a href="#how-it-works" className="hover:text-blue-600">
+            How it works
+          </a>
           <a href="#methodology" className="hover:text-blue-600">
             Methodology
           </a>
+          <Link href="/legal" className="hover:text-blue-600">
+            Legal
+          </Link>
         </div>
       </nav>
 
       {/* HERO */}
-      <header className="max-w-4xl mx-auto px-6 py-16 text-center">
-        <h1 className="text-4xl md:text-6xl font-black mb-6">
-          Your Carbon Footprint{' '}
-          <span className="text-blue-600">Pre-Compliance Attestation</span>
+      <header className="max-w-5xl mx-auto px-6 py-20 text-center">
+        <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+          A carbon footprint attestation
           <br />
-          in 5 minutes.
+          <span className="text-blue-600">
+            trusted by banks and buyers
+          </span>
         </h1>
-        <p className="text-lg text-slate-600 leading-relaxed mb-8">
-          Generate a standardized carbon footprint attestation aligned with the
-          <strong> VSME standard</strong> and compatible with
-          <strong> CSRD value-chain reporting</strong>.
+        <p className="text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto mb-10">
+          Certif-Scope helps SMEs generate a standardized carbon footprint
+          attestation aligned with the <strong>VSME standard</strong> and
+          compatible with <strong>CSRD value-chain reporting</strong>.
           <br />
-          Designed for ESG questionnaires, banking requests and tender
-          documentation.
+          Designed for ESG questionnaires, financing requests and tenders.
         </p>
+
+        <a
+          href="#assessment"
+          className="inline-block bg-blue-600 text-white font-bold px-8 py-4 rounded-xl shadow hover:bg-blue-700 transition"
+        >
+          Start your assessment
+        </a>
       </header>
 
-      {/* REGULATORY & BUSINESS VALUE */}
-      <section className="bg-slate-50 py-16 px-6">
+      {/* WHY IT MATTERS */}
+      <section className="bg-slate-50 py-20 px-6">
+        <div className="max-w-6xl mx-auto text-center mb-14">
+          <h2 className="text-3xl font-black mb-4">
+            Why carbon data is now expected
+          </h2>
+          <p className="text-slate-600 max-w-3xl mx-auto">
+            Even when not directly subject to CSRD, SMEs are increasingly required
+            to provide carbon footprint indicators as part of their economic
+            relationships.
+          </p>
+        </div>
+
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-            <h3 className="font-bold text-blue-600 mb-4">
-              CSRD Value-Chain Alignment
+          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+            <h3 className="font-bold text-blue-600 mb-3">
+              Corporate buyers
             </h3>
             <p className="text-sm text-slate-500">
-              While CSRD primarily applies to large companies, SMEs are increasingly
-              required to provide carbon data as part of their partners’ CSRD
-              reporting obligations. Certif-Scope helps you respond with a
-              structured, standardized document.
+              Large companies subject to CSRD must report Scope 3 emissions and
+              increasingly request carbon data from their suppliers.
             </p>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-            <h3 className="font-bold text-blue-600 mb-4">
-              ESG & Banking Requests
+          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+            <h3 className="font-bold text-blue-600 mb-3">
+              Banks & financing
             </h3>
             <p className="text-sm text-slate-500">
-              Financial institutions increasingly request carbon footprint
-              indicators as part of ESG assessments. Certif-Scope provides a
-              methodological attestation suitable for such requests, without
-              requiring a full audit.
+              Financial institutions integrate ESG criteria into credit analysis
+              and often request standardized carbon indicators.
             </p>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-            <h3 className="font-bold text-blue-600 mb-4">
-              Tenders & Procurement
+          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+            <h3 className="font-bold text-blue-600 mb-3">
+              Tenders & procurement
             </h3>
             <p className="text-sm text-slate-500">
-              Strengthen your bids by attaching a greenhouse gas emissions
-              attestation aligned with recognized standards (GHG Protocol),
-              commonly expected in public and private procurement processes.
+              Public and private tenders increasingly expect documented greenhouse
+              gas emissions as part of supplier evaluation.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section
+        id="how-it-works"
+        className="max-w-5xl mx-auto py-20 px-6"
+      >
+        <h2 className="text-3xl font-black mb-12 text-center">
+          How Certif-Scope works
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+          <div>
+            <div className="text-blue-600 font-black text-3xl mb-4">1</div>
+            <h3 className="font-bold mb-2">Enter your data</h3>
+            <p className="text-sm text-slate-500">
+              Provide high-level accounting information (revenue, energy,
+              expenses) directly in your browser.
+            </p>
+          </div>
+
+          <div>
+            <div className="text-blue-600 font-black text-3xl mb-4">2</div>
+            <h3 className="font-bold mb-2">Automated calculation</h3>
+            <p className="text-sm text-slate-500">
+              Emissions are calculated instantly using standardized,
+              spend-based factors aligned with recognized frameworks.
+            </p>
+          </div>
+
+          <div>
+            <div className="text-blue-600 font-black text-3xl mb-4">3</div>
+            <h3 className="font-bold mb-2">Download attestation</h3>
+            <p className="text-sm text-slate-500">
+              Receive a clear, structured PDF attestation ready to share with
+              partners, banks or procurement teams.
             </p>
           </div>
         </div>
@@ -80,56 +135,62 @@ export default function Home() {
       {/* METHODOLOGY */}
       <section
         id="methodology"
-        className="max-w-4xl mx-auto py-20 px-6"
+        className="bg-slate-50 py-20 px-6"
       >
-        <h2 className="text-3xl font-black mb-8 text-center">
-          Transparent & Recognized Methodology
-        </h2>
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-black mb-8 text-center">
+            Transparent & recognized methodology
+          </h2>
 
-        <div className="space-y-6 text-slate-700">
-          <p>
-            The calculation engine relies on the{' '}
-            <strong>spend-based method</strong> as defined in the{' '}
-            <strong>GHG Protocol Corporate Standard</strong>.
-            Your accounting expenditures are matched with official emission
-            factors from the <strong>ADEME Base Empreinte</strong>.
-          </p>
+          <div className="space-y-6 text-slate-700">
+            <p>
+              The calculation engine relies on a{' '}
+              <strong>spend-based estimation method</strong> inspired by the{' '}
+              <strong>GHG Protocol Corporate Standard</strong>.
+              Accounting expenditures are matched with official emission factors
+              from the <strong>ADEME Base Empreinte</strong>.
+            </p>
 
-          <div className="bg-blue-50 p-6 rounded-xl border-l-4 border-blue-600">
-            <h4 className="font-bold mb-2">Emission scopes covered:</h4>
-            <ul className="list-disc pl-5 space-y-2 text-sm">
-              <li>
-                <strong>Scope 1:</strong> Direct emissions (fuel consumption,
-                refrigerant gases).
-              </li>
-              <li>
-                <strong>Scope 2:</strong> Indirect energy emissions (electricity).
-              </li>
-              <li>
-                <strong>Scope 3:</strong> Value-chain emissions (purchased goods
-                and services, sector-based estimation).
-              </li>
-            </ul>
+            <div className="bg-white p-6 rounded-xl border-l-4 border-blue-600 shadow-sm">
+              <h4 className="font-bold mb-2">Emission scopes covered</h4>
+              <ul className="list-disc pl-5 space-y-2 text-sm">
+                <li>
+                  <strong>Scope 1:</strong> Direct emissions (fuel, refrigerants).
+                </li>
+                <li>
+                  <strong>Scope 2:</strong> Indirect energy emissions
+                  (electricity).
+                </li>
+                <li>
+                  <strong>Scope 3:</strong> Value-chain emissions estimated using
+                  sector-based spend factors.
+                </li>
+              </ul>
+            </div>
+
+            <p className="text-sm text-slate-500">
+              Results are indicative and designed for pre-compliance and partner
+              reporting. They do not replace a full carbon audit conducted by an
+              accredited third party.
+            </p>
           </div>
-
-          <p className="text-sm text-slate-500">
-            This approach provides a fast, standardized estimation. Results are
-            indicative and do not replace a full carbon audit conducted by an
-            accredited expert.
-          </p>
         </div>
       </section>
 
       {/* FORM */}
-      <section className="max-w-4xl mx-auto py-12 px-6">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-black italic">
+      <section
+        id="assessment"
+        className="max-w-4xl mx-auto py-20 px-6"
+      >
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-black mb-2">
             Start your assessment
           </h2>
           <p className="text-slate-400">
             Free simulation · €99 for the downloadable attestation
           </p>
         </div>
+
         <AssessmentForm />
       </section>
 
@@ -155,4 +216,4 @@ export default function Home() {
       </footer>
     </div>
   );
-      }
+        }
