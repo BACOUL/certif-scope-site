@@ -37,7 +37,6 @@ export default function AssessmentForm() {
     setResults(calculation);
   };
 
-  /* Auto-scroll vers les résultats */
   useEffect(() => {
     if (results && resultsRef.current) {
       resultsRef.current.scrollIntoView({
@@ -156,7 +155,6 @@ export default function AssessmentForm() {
             </div>
           </div>
 
-          {/* CTA */}
           <button
             type="submit"
             className="w-full bg-[#1FB6C1] hover:bg-[#17A2AC] text-white font-bold py-4 rounded-xl shadow-md transition"
@@ -204,15 +202,18 @@ export default function AssessmentForm() {
               {results.total} tCO₂e
             </p>
 
-            <button
-              type="button"
-              className="w-full bg-[#1FB6C1] text-white font-bold py-4 rounded-xl hover:bg-[#17A2AC] transition"
+            {/* STRIPE BUTTON */}
+            <a
+              href="https://buy.stripe.com/test_5kQ9ATf031jK6EidNd1kA00"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex justify-center bg-[#1FB6C1] text-white font-bold py-4 rounded-xl hover:bg-[#17A2AC] transition"
             >
-              Get the official attestation (€99)
-            </button>
+              Download official attestation (€99)
+            </a>
           </div>
         </div>
       )}
     </div>
   );
-              }
+            }
