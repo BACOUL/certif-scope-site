@@ -12,13 +12,11 @@ export default function Home() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
 
-          {/* BRAND */}
           <Link href="/" className="text-xl font-black tracking-tight">
             <span className="text-[#0B3A63]">Certif-</span>
             <span className="text-[#1FB6C1]">Scope</span>
           </Link>
 
-          {/* DESKTOP NAV */}
           <nav className="hidden md:flex gap-8 text-xs font-bold uppercase tracking-widest text-[#64748B]">
             <a href="#how-it-works" className="hover:text-[#1FB6C1]">How it works</a>
             <a href="#regulatory-context" className="hover:text-[#1FB6C1]">Regulation</a>
@@ -27,7 +25,6 @@ export default function Home() {
             <Link href="/legal" className="hover:text-[#1FB6C1]">Legal</Link>
           </nav>
 
-          {/* MOBILE BUTTON */}
           <button
             className="md:hidden text-[#0B3A63]"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -41,7 +38,6 @@ export default function Home() {
           </button>
         </div>
 
-        {/* MOBILE NAV */}
         {menuOpen && (
           <div className="md:hidden bg-white border-t border-slate-200">
             <nav className="flex flex-col px-6 py-6 gap-4 text-sm font-semibold text-[#475569]">
@@ -79,8 +75,19 @@ export default function Home() {
           Start my assessment
         </a>
 
+        <div className="mt-6">
+          <a
+            href="https://buy.stripe.com/test_5kQ9ATf031jK6EidNd1kA00"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex bg-white border border-[#1FB6C1] text-[#1FB6C1] font-bold px-6 py-3 rounded-xl hover:bg-[#E6F6F7] transition"
+          >
+            Test Stripe payment (€99)
+          </a>
+        </div>
+
         <p className="mt-4 text-sm text-[#64748B]">
-          No account · No data storage · €99 only if you download the attestation
+          No account · No data storage · Payment only if you download the attestation
         </p>
       </section>
 
@@ -213,4 +220,4 @@ export default function Home() {
 
     </div>
   );
-        }
+           }
