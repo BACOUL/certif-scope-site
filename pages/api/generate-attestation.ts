@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from 'chrome-aws-lambda';
+
 import { renderAttestationHTML } from '@/lib/renderAttestation';
 import { calculateCarbonFootprint } from '@/lib/carbonEngine';
 
@@ -22,7 +24,7 @@ export default async function handler(
       electricitySpent
     } = req.body;
 
-    // 🔒 Recalcul serveur (anti-fraude)
+    // 🔒 Server-side recalculation (anti-fraud)
     const result = calculateCarbonFootprint({
       sector,
       revenue: Number(revenue),
@@ -50,7 +52,9 @@ export default async function handler(
     });
 
     const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: chromium.args,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless
     });
 
     const page = await browser.newPage();
@@ -75,9 +79,9 @@ export default async function handler(
       'attachment; filename="certif-scope-attestation.pdf"'
     );
 
-    res.status(200).send(pdf);
+    return res.status(200).send(pdf);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Attestation generation failed' });
+    return res.status(500).json({ error: 'Attestation generation failed' });
   }
-        }
+}
