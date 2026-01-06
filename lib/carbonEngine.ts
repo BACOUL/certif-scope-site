@@ -1,100 +1,211 @@
-/**
- * Certif-Scope – Carbon estimation engine
- *
- * This engine provides a standardized, spend-based estimation of greenhouse
- * gas emissions for SMEs, aligned with widely used methodological principles
- * (GHG Protocol – spend-based approach).
- *
- * IMPORTANT:
- * - Values are indicative.
- * - This is NOT a physical activity-based calculation.
- * - This does NOT replace a full carbon audit.
- */
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  calculateCarbonFootprint,
+  CarbonInput
+} from '../lib/carbonEngine';
 
-/**
- * Emission factors
- * Units:
- * - sector factors: tCO₂e per € of revenue (order-of-magnitude estimates)
- * - fuel: kgCO₂e per liter
- * - electricity: kgCO₂e per kWh (EU average)
- */
-export const EMISSION_FACTORS = {
-  sectors: {
-    services: 0.054,
-    retail: 0.120,
-    construction: 0.280,
-    manufacturing: 0.450,
-    transport: 0.610
-  },
-
-  energy: {
-    fuel_kgco2_per_liter: 2.65,
-    electricity_kgco2_per_kwh: 0.25
-  },
-
-  assumptions: {
-    averageFuelPricePerLiterEUR: 1.7,
-    averageElectricityPricePerKwhEUR: 0.22
-  }
+type FormState = {
+  companyName: string;
+  sector: CarbonInput['sector'];
+  revenue: number;
+  fuelSpent: number;
+  electricitySpent: number;
 };
 
-export interface CarbonInput {
-  sector: keyof typeof EMISSION_FACTORS.sectors;
-  revenue: number;           // € / year
-  fuelSpent?: number;        // € / year
-  electricitySpent?: number; // € / year
-}
+export default function AssessmentForm() {
+  const [formData, setFormData] = useState<FormState>({
+    companyName: '',
+    sector: 'services',
+    revenue: 0,
+    fuelSpent: 0,
+    electricitySpent: 0
+  });
 
-export interface CarbonResult {
-  scope1: number; // tCO₂e
-  scope2: number; // tCO₂e
-  scope3: number; // tCO₂e
-  total: number;  // tCO₂e
-}
+  const [results, setResults] = useState<any>(null);
+  const resultsRef = useRef<HTMLDivElement | null>(null);
 
-/**
- * Core calculation function
- */
-export function calculateCarbonFootprint(
-  data: CarbonInput
-): CarbonResult {
-  // ---- Scope 1 : Direct fuel combustion (estimated from spend) ----
-  const fuelLiters =
-    (data.fuelSpent || 0) /
-    EMISSION_FACTORS.assumptions.averageFuelPricePerLiterEUR;
+  const handleCalculate = (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const scope1Kg =
-    fuelLiters *
-    EMISSION_FACTORS.energy.fuel_kgco2_per_liter;
+    const calculation = calculateCarbonFootprint({
+      sector: formData.sector,
+      revenue: Number(formData.revenue),
+      fuelSpent: Number(formData.fuelSpent),
+      electricitySpent: Number(formData.electricitySpent)
+    });
 
-  const scope1 = scope1Kg / 1000; // kg → tons
+    setResults(calculation);
 
-  // ---- Scope 2 : Electricity consumption (estimated from spend) ----
-  const electricityKwh =
-    (data.electricitySpent || 0) /
-    EMISSION_FACTORS.assumptions.averageElectricityPricePerKwhEUR;
-
-  const scope2Kg =
-    electricityKwh *
-    EMISSION_FACTORS.energy.electricity_kgco2_per_kwh;
-
-  const scope2 = scope2Kg / 1000; // kg → tons
-
-  // ---- Scope 3 : Value chain (spend-based, revenue proxy) ----
-  const sectorFactor =
-    EMISSION_FACTORS.sectors[data.sector] ??
-    EMISSION_FACTORS.sectors.services;
-
-  const scope3 =
-    data.revenue * sectorFactor;
-
-  // ---- Aggregation ----
-  const total = scope1 + scope2 + scope3;
-
-  return {
-    scope1: Math.round(scope1),
-    scope2: Math.round(scope2),
-    scope3: Math.round(scope3),
-    total: Math.round(total)
+    // Sauvegarde dans le navigateur
+    localStorage.setItem(
+      'certif-scope-result',
+      JSON.stringify({
+        companyName: formData.companyName,
+        sector: formData.sector,
+        revenue: formData.revenue,
+        fuelSpent: formData.fuelSpent,
+        electricitySpent: formData.electricitySpent,
+        ...calculation
+      })
+    );
   };
-}
+
+  useEffect(() => {
+    if (results && resultsRef.current) {
+      resultsRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  }, [results]);
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-12">
+
+      <form
+        onSubmit={handleCalculate}
+        className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden"
+      >
+        <div className="px-8 py-6 border-b border-slate-200">
+          <h3 className="text-lg font-bold text-[#0B3A63]">
+            Carbon footprint assessment
+          </h3>
+          <p className="text-sm text-slate-500 mt-1">
+            Free preview · No account required · Local calculation
+          </p>
+        </div>
+
+        <div className="p-8 space-y-8">
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Company name
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Your company"
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#1FB6C1] focus:border-[#1FB6C1] outline-none"
+              onChange={(e) =>
+                setFormData({ ...formData, companyName: e.target.value })
+              }
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Business sector
+            </label>
+            <select
+              value={formData.sector}
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-[#1FB6C1] focus:border-[#1FB6C1] outline-none"
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  sector: e.target.value as CarbonInput['sector']
+                })
+              }
+            >
+              <option value="services">Services</option>
+              <option value="retail">Retail</option>
+              <option value="construction">Construction</option>
+              <option value="manufacturing">Manufacturing</option>
+              <option value="transport">Transport</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Annual revenue (€)
+            </label>
+            <input
+              type="number"
+              required
+              placeholder="e.g. 750000"
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#1FB6C1] focus:border-[#1FB6C1] outline-none"
+              onChange={(e) =>
+                setFormData({ ...formData, revenue: Number(e.target.value) })
+              }
+            />
+          </div>
+
+          <div className="bg-slate-50 rounded-xl p-6 space-y-4">
+            <p className="text-sm font-semibold text-slate-700">
+              Energy-related expenses (annual)
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="number"
+                placeholder="Fuel expenses (€)"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white"
+                onChange={(e) =>
+                  setFormData({ ...formData, fuelSpent: Number(e.target.value) })
+                }
+              />
+
+              <input
+                type="number"
+                placeholder="Electricity expenses (€)"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    electricitySpent: Number(e.target.value)
+                  })
+                }
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-[#1FB6C1] hover:bg-[#17A2AC] text-white font-bold py-4 rounded-xl shadow-md transition"
+          >
+            Calculate my footprint
+          </button>
+        </div>
+      </form>
+
+      {results && (
+        <div
+          ref={resultsRef}
+          className="bg-white rounded-2xl border border-slate-200 shadow-lg p-8"
+        >
+          <h3 className="text-xl font-bold mb-6 text-center text-[#0B3A63]">
+            Carbon footprint preview
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {[
+              ['Scope 1', results.scope1],
+              ['Scope 2', results.scope2],
+              ['Scope 3', results.scope3]
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="border border-slate-200 rounded-xl p-4 text-center bg-slate-50"
+              >
+                <p className="text-xs uppercase text-slate-500 mb-1">{label}</p>
+                <p className="text-xl font-bold text-[#0B3A63]">{value} tCO₂e</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <p className="text-sm text-slate-500 mb-1">Estimated total footprint</p>
+            <p className="text-3xl font-extrabold text-[#0B3A63] mb-6">
+              {results.total} tCO₂e
+            </p>
+
+            <a
+              href="https://buy.stripe.com/test_5kQ9ATf031jK6EidNd1kA00"
+              className="w-full inline-flex justify-center bg-[#1FB6C1] text-white font-bold py-4 rounded-xl hover:bg-[#17A2AC] transition"
+            >
+              Get the official attestation (€99)
+            </a>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+          }
