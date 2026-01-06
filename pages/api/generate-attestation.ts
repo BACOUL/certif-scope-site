@@ -2,15 +2,15 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import puppeteer from 'puppeteer-core';
 import chromium from 'chrome-aws-lambda';
 
-import { renderAttestationHTML } from '@/lib/renderAttestation';
-import { calculateCarbonFootprint } from '@/lib/carbonEngine';
+import { renderAttestationHTML } from '../../lib/renderAttestation';
+import { calculateCarbonFootprint } from '../../lib/carbonEngine';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   if (req.method !== 'POST') {
-    return res.status(405).end();
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
@@ -23,6 +23,10 @@ export default async function handler(
       fuelSpent,
       electricitySpent
     } = req.body;
+
+    if (!companyName || !sector || !revenue) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
 
     // 🔒 Server-side recalculation (anti-fraud)
     const result = calculateCarbonFootprint({
@@ -37,8 +41,8 @@ export default async function handler(
     const html = renderAttestationHTML({
       COMPANY_NAME: companyName,
       BUSINESS_SECTOR: sector,
-      COUNTRY: country,
-      ASSESSMENT_PERIOD: period,
+      COUNTRY: country || 'N/A',
+      ASSESSMENT_PERIOD: period || 'N/A',
 
       SCOPE_1: String(result.scope1),
       SCOPE_2: String(result.scope2),
@@ -80,8 +84,8 @@ export default async function handler(
     );
 
     return res.status(200).send(pdf);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error('[ATTESTATION_ERROR]', error);
     return res.status(500).json({ error: 'Attestation generation failed' });
   }
-}
+  }
