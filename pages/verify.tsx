@@ -8,7 +8,6 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Autofill from query parameters
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -18,19 +17,12 @@ export default function VerifyPage() {
 
     if (urlId) setId(urlId);
     if (urlHash) setHash(urlHash);
-
-    // Auto verify if both provided
-    if (urlId && urlHash) {
-      verify(urlId, urlHash);
-    }
   }, []);
 
-  // Main verification function
   async function verify(customId?: string, customHash?: string) {
     const finalId = (customId || id).trim();
     const finalHash = (customHash || hash).trim();
 
-    // Local validation BEFORE network call
     if (finalId.length < 20) {
       setError("Invalid Attestation ID.");
       return;
@@ -45,21 +37,27 @@ export default function VerifyPage() {
     setResult(null);
 
     try {
-      const res = await fetch(
+      const urls = [
         "https://raw.githubusercontent.com/BACOUL/certif-scope/main/attestations.json",
-        { cache: "no-store" }
-      );
+        "/attestations.json"
+      ];
 
-      if (!res.ok) {
-        setError("Unable to fetch verification registry.");
-        setLoading(false);
-        return;
+      let json: any = null;
+
+      for (const url of urls) {
+        try {
+          const res = await fetch(url, { cache: "no-store" });
+          if (res.ok) {
+            json = await res.json();
+            break;
+          }
+        } catch (e) {
+          continue;
+        }
       }
 
-      const json = await res.json();
-
-      if (!json.attestations || !Array.isArray(json.attestations)) {
-        setError("Invalid registry format.");
+      if (!json || !json.attestations) {
+        setError("Verification service temporarily unavailable.");
         setLoading(false);
         return;
       }
@@ -72,7 +70,7 @@ export default function VerifyPage() {
 
       setResult(match ? { valid: true, item: match } : { valid: false });
     } catch (err) {
-      setError("Verification failed. Try again later.");
+      setError("Unexpected error. Try again later.");
     }
 
     setLoading(false);
@@ -92,17 +90,17 @@ export default function VerifyPage() {
           ← Back to Certif-Scope
         </Link>
 
-        <h1 className="text-3xl md:text-4xl font-black mb-8 text-[#0B3A63]">
+        <h1 className="text-3xl md:text-4xl font-black mb-2 text-[#0B3A63]">
           Verify Attestation
         </h1>
 
-        <p className="text-sm text-slate-600 leading-relaxed mb-6">
-          Enter the Attestation ID and SHA-256 shown on the document to confirm authenticity.
+        <p className="text-xs text-slate-500 mb-6">
+          Certif-Scope is operated by <strong>TimeProofs</strong>.  
+          Support: <strong>contact@certif-scope.com</strong>
         </p>
 
         <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm space-y-6">
 
-          {/* ID Input */}
           <div>
             <label className="text-sm font-semibold text-slate-700">Attestation ID</label>
             <input
@@ -114,7 +112,6 @@ export default function VerifyPage() {
             />
           </div>
 
-          {/* Hash Input */}
           <div>
             <label className="text-sm font-semibold text-slate-700">SHA-256 Hash</label>
             <input
@@ -139,12 +136,10 @@ export default function VerifyPage() {
           </button>
         </div>
 
-        {/* Error message */}
         {error && (
           <p className="mt-6 text-red-600 font-semibold text-center">{error}</p>
         )}
 
-        {/* Verification result */}
         {result && (
           <div className="mt-10 p-6 bg-white border border-slate-300 rounded-xl shadow-sm">
             {result.valid ? (
@@ -153,7 +148,7 @@ export default function VerifyPage() {
                   ✔ VALID — Attestation Authentic
                 </p>
                 <p className="text-sm text-slate-700">
-                  The attestation hash matches the official registry.
+                  Hash & ID match the official registry.
                 </p>
 
                 <div className="mt-4 text-sm text-slate-700 space-y-1">
@@ -168,12 +163,19 @@ export default function VerifyPage() {
                   ✖ INVALID — No match found
                 </p>
                 <p className="text-sm text-slate-700">
-                  The combination of ID and SHA-256 could not be verified.
+                  The combination of ID and Hash is not registered.
                 </p>
               </>
             )}
           </div>
         )}
+
+        {/* LEGAL LINKS */}
+        <div className="text-center mt-10 text-xs text-slate-500 space-x-4">
+          <Link href="/legal" className="text-[#1FB6C1]">Legal</Link>
+          <Link href="/privacy" className="text-[#1FB6C1]">Privacy</Link>
+          <Link href="/refund-policy" className="text-[#1FB6C1]">Refund Policy</Link>
+        </div>
 
       </div>
     </div>
