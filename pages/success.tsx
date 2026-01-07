@@ -5,6 +5,7 @@ export default function Success() {
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
+
   const [attestationId, setAttestationId] = useState("");
   const [hash, setHash] = useState("");
   const [pdfBase64, setPdfBase64] = useState("");
@@ -17,54 +18,60 @@ export default function Success() {
     }
   }, []);
 
-  const generatePDF = async () => {
+  async function generatePDF() {
     if (!report) return;
 
     setLoading(true);
 
-    const res = await fetch("/api/attestation", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(report),
-    });
+    try {
+      const res = await fetch("/api/attestation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(report),
+      });
 
-    if (!res.ok) {
-      setLoading(false);
-      alert("Error generating attestation.");
-      return;
+      if (!res.ok) {
+        alert("Error generating attestation. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+
+      setAttestationId(data.id);
+      setHash(data.hash);
+      setPdfBase64(data.pdfBase64);
+
+      // remove local report so it cannot be re-used
+      localStorage.removeItem("certif-scope-report");
+    } catch (err) {
+      alert("Unexpected error. Try again later.");
     }
 
-    const json = await res.json();
-
-    setAttestationId(json.id);
-    setHash(json.hash);
-    setPdfBase64(json.pdfBase64);
-
-    // cleanup for security
-    localStorage.removeItem("certif-scope-report");
-
     setLoading(false);
-  };
+  }
 
-  const downloadPDF = () => {
+  function downloadPDF() {
     if (!pdfBase64) return;
 
     const link = document.createElement("a");
     link.href = "data:application/pdf;base64," + pdfBase64;
     link.download = "certif-scope-attestation.pdf";
     link.click();
-  };
+  }
 
   if (!ready) return <p className="text-center mt-20">Loading...</p>;
 
   return (
     <div className="max-w-xl mx-auto text-center py-20 px-6">
+
       <h1 className="text-3xl font-bold text-[#0B3A63]">Payment confirmed ✓</h1>
 
       <p className="mt-4 text-slate-600">
         Your official carbon footprint attestation is ready for generation.
       </p>
 
+      {/* Card summary */}
       <div className="mt-10 bg-white border rounded-xl p-6 shadow-md">
         <p className="text-sm text-slate-500">Company</p>
         <p className="font-bold text-[#0B3A63]">{report.companyName}</p>
@@ -75,6 +82,7 @@ export default function Success() {
         </p>
       </div>
 
+      {/* Button to generate PDF */}
       {!pdfBase64 && (
         <button
           onClick={generatePDF}
@@ -85,6 +93,7 @@ export default function Success() {
         </button>
       )}
 
+      {/* Display after PDF generated */}
       {pdfBase64 && (
         <>
           <button
@@ -94,6 +103,7 @@ export default function Success() {
             Download attestation PDF
           </button>
 
+          {/* Attestation details */}
           <div className="mt-8 bg-white border rounded-xl p-6 text-left shadow">
             <h3 className="text-lg font-bold text-[#0B3A63] mb-2">
               Attestation details
