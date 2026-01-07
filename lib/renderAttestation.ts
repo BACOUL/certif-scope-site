@@ -32,6 +32,7 @@ export function renderAttestationHTML(data: AttestationData): string {
   <title>Carbon Footprint Attestation — Certif-Scope</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
+
 <body style="font-family: Arial, sans-serif; padding: 20px;">
 
   <h1>Carbon Footprint Attestation</h1>
@@ -60,13 +61,19 @@ export function renderAttestationHTML(data: AttestationData): string {
   <hr style="margin-top:30px; margin-bottom:20px;">
 
   <p style="font-size:13px; color:#444;">
+    <strong>Issued by:</strong> Certif-Scope — Filiale de TimeProofs<br/>
+    TimeProofs — Entrepreneur individuel · SIREN 999356439 · France<br/>
+    Contact: support@certif-scope.com
+  </p>
+
+  <p style="font-size:13px; color:#444; margin-top:20px;">
     <strong>Legal Notice:</strong><br>
-    This attestation is an indicative estimation based on data provided by the company.
-    It is not an audit, not a verified carbon footprint assessment, and not a CSRD-compliant
-    sustainability report. The results are calculated using a standardized spend-based model
-    and may differ from emissions measured through activity-based methodologies or certified
-    audits. Certif-Scope cannot be held responsible for incorrect inputs or interpretation
-    of the estimation.
+    This attestation is a methodological estimation based on user-provided data.
+    It is not an audit, not a third-party verified carbon footprint,
+    and not a CSRD-compliant sustainability report. Calculations are performed
+    using a standardized screening-level model and results may differ from
+    activity-based approaches or certified audits. Certif-Scope and TimeProofs
+    cannot be held responsible for incorrect inputs or third-party interpretations.
   </p>
 
 </body>
