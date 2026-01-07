@@ -8,7 +8,7 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Auto-fill from URL parameters
+  // Autofill from query parameters
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -19,19 +19,30 @@ export default function VerifyPage() {
     if (urlId) setId(urlId);
     if (urlHash) setHash(urlHash);
 
-    // auto-verify if both present
+    // Auto verify if both provided
     if (urlId && urlHash) {
-      handleVerify(urlId, urlHash);
+      verify(urlId, urlHash);
     }
   }, []);
 
-  async function handleVerify(providedId?: string, providedHash?: string) {
+  // Main verification function
+  async function verify(customId?: string, customHash?: string) {
+    const finalId = (customId || id).trim();
+    const finalHash = (customHash || hash).trim();
+
+    // Local validation BEFORE network call
+    if (finalId.length < 20) {
+      setError("Invalid Attestation ID.");
+      return;
+    }
+    if (!/^[a-fA-F0-9]{64}$/.test(finalHash)) {
+      setError("Invalid SHA-256 hash format.");
+      return;
+    }
+
     setLoading(true);
     setError("");
     setResult(null);
-
-    const finalId = providedId || id;
-    const finalHash = providedHash || hash;
 
     try {
       const res = await fetch(
@@ -45,18 +56,18 @@ export default function VerifyPage() {
         return;
       }
 
-      const data = await res.json();
+      const json = await res.json();
 
-      if (!data.attestations || !Array.isArray(data.attestations)) {
+      if (!json.attestations || !Array.isArray(json.attestations)) {
         setError("Invalid registry format.");
         setLoading(false);
         return;
       }
 
-      const match = data.attestations.find(
+      const match = json.attestations.find(
         (item: any) =>
-          item.id.trim() === finalId.trim() &&
-          item.hash.trim().toLowerCase() === finalHash.trim().toLowerCase()
+          item.id.trim() === finalId &&
+          item.hash.trim().toLowerCase() === finalHash.toLowerCase()
       );
 
       setResult(match ? { valid: true, item: match } : { valid: false });
@@ -66,6 +77,9 @@ export default function VerifyPage() {
 
     setLoading(false);
   }
+
+  const canVerify =
+    id.trim().length >= 20 && /^[a-fA-F0-9]{64}$/.test(hash.trim());
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#1E293B] px-6 py-16">
@@ -113,9 +127,13 @@ export default function VerifyPage() {
           </div>
 
           <button
-            onClick={() => handleVerify()}
-            disabled={loading}
-            className="w-full bg-[#1FB6C1] hover:bg-[#17A2AC] text-white font-semibold py-3 rounded-lg shadow-md transition text-center"
+            onClick={() => verify()}
+            disabled={loading || !canVerify}
+            className={`w-full py-3 rounded-lg text-white font-semibold shadow-md transition ${
+              canVerify
+                ? "bg-[#1FB6C1] hover:bg-[#17A2AC]"
+                : "bg-slate-300 cursor-not-allowed"
+            }`}
           >
             {loading ? "Verifying..." : "Verify Attestation"}
           </button>
@@ -126,7 +144,7 @@ export default function VerifyPage() {
           <p className="mt-6 text-red-600 font-semibold text-center">{error}</p>
         )}
 
-        {/* Result */}
+        {/* Verification result */}
         {result && (
           <div className="mt-10 p-6 bg-white border border-slate-300 rounded-xl shadow-sm">
             {result.valid ? (
@@ -138,19 +156,19 @@ export default function VerifyPage() {
                   The attestation hash matches the official registry.
                 </p>
 
-                <div className="mt-4 text-sm text-slate-700">
+                <div className="mt-4 text-sm text-slate-700 space-y-1">
                   <p><strong>ID:</strong> {id}</p>
-                  <p><strong>Hash:</strong> {hash}</p>
+                  <p><strong>SHA-256:</strong> {hash}</p>
                   <p><strong>Timestamp:</strong> {result.item.timestamp}</p>
                 </div>
               </>
             ) : (
               <>
                 <p className="text-red-600 font-bold text-xl mb-2">
-                  ✖ INVALID — Hash Mismatch
+                  ✖ INVALID — No match found
                 </p>
                 <p className="text-sm text-slate-700">
-                  The entered ID and/or hash do not match any registered attestation.
+                  The combination of ID and SHA-256 could not be verified.
                 </p>
               </>
             )}
@@ -160,4 +178,4 @@ export default function VerifyPage() {
       </div>
     </div>
   );
-        }
+      }
