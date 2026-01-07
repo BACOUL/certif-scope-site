@@ -1,9 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-import {
-  calculateCarbonFootprint,
-  CarbonInput
-} from '../lib/carbonEngine';
+import { calculateCarbonFootprint, CarbonInput } from '../lib/carbonEngine';
 
 type FormState = {
   companyName: string;
@@ -44,15 +40,22 @@ export default function AssessmentForm() {
     }));
   };
 
+  // =============================================
+  // STRIPE CHECKOUT — Redirection via session.url
+  // =============================================
   const handleStripe = async () => {
-    const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+    const res = await fetch('/api/create-checkout-session', {
+      method: "POST",
+    });
 
-    const res = await fetch('/api/checkout', { method: "POST" });
     const data = await res.json();
 
-    await stripe?.redirectToCheckout({ sessionId: data.id });
+    if (data.url) {
+      window.location.href = data.url;
+    }
   };
 
+  // Scroll auto vers les résultats
   useEffect(() => {
     if (results && resultsRef.current) {
       resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -62,6 +65,7 @@ export default function AssessmentForm() {
   return (
     <div className="max-w-2xl mx-auto space-y-12">
 
+      {/* FORM */}
       <form
         onSubmit={handleCalculate}
         className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden"
@@ -77,6 +81,7 @@ export default function AssessmentForm() {
 
         <div className="p-8 space-y-8">
 
+          {/* Company name */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Company name
@@ -91,6 +96,7 @@ export default function AssessmentForm() {
             />
           </div>
 
+          {/* Sector */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Business sector
@@ -113,6 +119,7 @@ export default function AssessmentForm() {
             </select>
           </div>
 
+          {/* Revenue */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Annual revenue (€)
@@ -130,6 +137,7 @@ export default function AssessmentForm() {
             />
           </div>
 
+          {/* Energy costs */}
           <div className="bg-slate-50 rounded-xl p-6 space-y-4">
             <p className="text-sm font-semibold text-slate-700">
               Energy-related expenses (annual)
@@ -147,6 +155,7 @@ export default function AssessmentForm() {
                   })
                 }
               />
+
               <input
                 type="number"
                 placeholder="Electricity expenses (€)"
@@ -170,6 +179,7 @@ export default function AssessmentForm() {
         </div>
       </form>
 
+      {/* RESULTS */}
       {results && (
         <div ref={resultsRef} className="bg-white rounded-2xl border p-8 shadow-lg">
           <h3 className="text-xl font-bold mb-6 text-center text-[#0B3A63]">
@@ -206,4 +216,4 @@ export default function AssessmentForm() {
       )}
     </div>
   );
-              }
+}
