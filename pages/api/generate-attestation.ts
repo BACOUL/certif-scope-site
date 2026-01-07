@@ -28,6 +28,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // -------------------------------------------------------------
+    // 1) Server-side recalculation (anti-fraude)
+    // -------------------------------------------------------------
     const result = calculateCarbonFootprint({
       sector,
       revenue: Number(revenue),
@@ -38,6 +41,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const now = new Date();
     const attestationId = uuidv4();
 
+    // -------------------------------------------------------------
+    // 2) Generate HTML without QR (first pass)
+    // -------------------------------------------------------------
     const htmlBase = renderAttestationHTML({
       COMPANY_NAME: companyName,
       BUSINESS_SECTOR: sector,
@@ -51,32 +57,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ISSUE_DATE_UTC: now.toISOString().split('T')[0],
       GENERATION_TIMESTAMP: now.toISOString(),
       METHODOLOGY_VERSION: 'v3',
-      QR_CODE: ''
+      QR_CODE: '' // placeholder
     });
 
     const executablePath = await chromium.executablePath;
 
-    const browser = await puppeteer.launch({
+    // -------------------------------------------------------------
+    // 3) First PDF generation (without QR)
+    // -------------------------------------------------------------
+    const browser1 = await puppeteer.launch({
       args: chromium.args,
       executablePath,
       headless: chromium.headless
     });
 
-    const page = await browser.newPage();
-    await page.setContent(htmlBase, { waitUntil: 'networkidle0' });
+    const page1 = await browser1.newPage();
+    await page1.setContent(htmlBase, { waitUntil: 'networkidle0' });
 
-    const pdfBuffer = await page.pdf({
+    const pdfBuffer = await page1.pdf({
       format: 'a4',
       printBackground: true,
       margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' }
     });
 
-    await browser.close();
+    await browser1.close();
 
+    // -------------------------------------------------------------
+    // 4) Compute SHA-256 of PDF
+    // -------------------------------------------------------------
     const pdfHash = crypto.createHash('sha256').update(pdfBuffer).digest('hex');
+
     const verifyUrl = `https://certif-scope.vercel.app/verify?id=${attestationId}&hash=${pdfHash}`;
     const qrDataUrl = await QRCode.toDataURL(verifyUrl);
 
+    // -------------------------------------------------------------
+    // 5) Generate final HTML WITH QR included
+    // -------------------------------------------------------------
     const htmlFinal = renderAttestationHTML({
       COMPANY_NAME: companyName,
       BUSINESS_SECTOR: sector,
@@ -93,6 +109,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       QR_CODE: qrDataUrl
     });
 
+    // -------------------------------------------------------------
+    // 6) Second PDF generation (final PDF)
+    // -------------------------------------------------------------
     const browser2 = await puppeteer.launch({
       args: chromium.args,
       executablePath,
@@ -110,6 +129,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await browser2.close();
 
+    // -------------------------------------------------------------
+    // 7) Return PDF directly to user
+    // -------------------------------------------------------------
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
@@ -122,4 +144,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('[ATTESTATION_ERROR]', error);
     return res.status(500).json({ error: 'Attestation generation failed' });
   }
-      }
+        }
