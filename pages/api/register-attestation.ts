@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
 /**
- * Secure registry writer for (ID + SHA256) => GitHub attestations.json
- * Called ONLY by /api/attestation after PDF generation.
+ * Secure registry writer for (ID + SHA256) → GitHub attestations.json
  */
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -10,9 +9,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // ---------------------------------------------------------
-  // 1) Validate request origin
-  // ---------------------------------------------------------
   const origin = req.headers.origin || "";
   const allowed =
     origin.includes("certif-scope") ||
@@ -22,9 +18,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(403).json({ error: "Forbidden origin" });
   }
 
-  // ---------------------------------------------------------
-  // 2) Validate inputs
-  // ---------------------------------------------------------
   let { id, hash } = req.body;
 
   if (typeof id !== "string" || typeof hash !== "string") {
@@ -41,9 +34,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "Invalid SHA-256 hash format" });
   }
 
-  // ---------------------------------------------------------
-  // 3) GitHub token
-  // ---------------------------------------------------------
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
     return res.status(500).json({ error: "GitHub token missing" });
@@ -53,9 +43,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     "https://api.github.com/repos/BACOUL/certif-scope/contents/attestations.json";
 
   try {
-    // ---------------------------------------------------------
-    // 4) Fetch existing file
-    // ---------------------------------------------------------
     const raw = await fetch(GH_URL, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -85,11 +72,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // ---------------------------------------------------------
-    // 5) Deduplication and consistency
-    // ---------------------------------------------------------
-    const alreadyById = existing.attestations.find((a: any) => a.id === id);
-    if (alreadyById) {
+    const byId = existing.attestations.find((a: any) => a.id === id);
+    if (byId) {
       return res.status(200).json({
         success: true,
         info: "ID already registered",
@@ -98,20 +82,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    const alreadyByHash = existing.attestations.find((a: any) => a.hash === hash);
-    if (alreadyByHash) {
+    const byHash = existing.attestations.find((a: any) => a.hash === hash);
+    if (byHash) {
       return res.status(400).json({
-        error: "Hash already registered with another attestation",
-        existingId: alreadyByHash.id
+        error: "Hash already registered",
+        existingId: byHash.id
       });
     }
 
-    // ---------------------------------------------------------
-    // 6) Write updated file
-    // ---------------------------------------------------------
     existing.attestations.push({
       id,
       hash,
+      hashShort: hash.substring(0, 8) + "...",
       timestamp: new Date().toISOString()
     });
 
@@ -125,7 +107,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       sha: file?.sha
     };
 
-    // Try commit
     let commitRes = await fetch(GH_URL, {
       method: "PUT",
       headers: {
@@ -137,7 +118,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (commitRes.status === 409) {
-      // SHA conflict -> retry once
       const latest = await fetch(GH_URL, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -145,8 +125,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       });
 
-      const newFile = await latest.json();
-      commitBody.sha = newFile.sha;
+      const fresh = await latest.json();
+      commitBody.sha = fresh.sha;
 
       commitRes = await fetch(GH_URL, {
         method: "PUT",
@@ -167,9 +147,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // ---------------------------------------------------------
-    // SUCCESS
-    // ---------------------------------------------------------
     return res.status(200).json({
       success: true,
       id,
@@ -183,4 +160,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       details: err.message
     });
   }
-      }
+          }
