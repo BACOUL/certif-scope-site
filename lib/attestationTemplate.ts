@@ -29,7 +29,7 @@ export const attestationTemplate = `
 
     .watermark {
       position: fixed;
-      top: 45%;
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) rotate(-45deg);
       font-size: 50px;
@@ -48,8 +48,8 @@ export const attestationTemplate = `
 
     .header {
       border-bottom: 2px solid var(--border);
-      padding-bottom: 20px;
-      margin-bottom: 30px;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
@@ -71,7 +71,7 @@ export const attestationTemplate = `
     }
     .qr-box img { width: 110px; height: 110px; }
 
-    .section { margin-bottom: 28px; }
+    .section { margin-bottom: 18px; margin-top: 20px; page-break-inside: avoid; }
 
     .box {
       background: var(--bg-soft);
@@ -90,7 +90,7 @@ export const attestationTemplate = `
 
     th, td {
       border: 1px solid var(--border);
-      padding: 10px 12px;
+      padding: 6px 8px;
       text-align: left;
     }
 
@@ -115,7 +115,7 @@ export const attestationTemplate = `
     .chart-bar-bg {
       flex-grow: 1;
       background: #E2E8F0;
-      height: 12px;
+      height: 8px;
       border-radius: 4px;
       overflow: hidden;
     }
@@ -128,11 +128,6 @@ export const attestationTemplate = `
       text-align: right;
       font-size: 12px;
       font-weight: 600;
-    }
-
-    .page-break {
-      page-break-before: always;
-      margin-top: 40px;
     }
 
     .footer {
@@ -164,10 +159,19 @@ export const attestationTemplate = `
 
     ul { margin-top: 5px; padding-left: 20px; }
     li { margin-bottom: 4px; }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+
+    @media print {
+      .watermark { display:none; }
+      body { background: white; color: #000; }
+      .qr-box img { page-break-inside: avoid; }
+    }
   </style>
 </head>
 
 <body>
+  <div class="container">
 
   <div class="watermark">CERTIF-SCOPE · NON-AUDIT ESTIMATION</div>
 
@@ -180,8 +184,7 @@ export const attestationTemplate = `
         <strong>Carbon Footprint Attestation (Methodological)</strong><br>
         ID: {{ATTESTATION_ID}}<br>
         Methodology v{{METHODOLOGY_VERSION}}<br>
-        Issued: {{ISSUE_DATE_UTC}} (UTC)<br>
-        Version: {{GENERATION_TIMESTAMP}}
+        Issued: {{ISSUE_DATE_UTC}} (UTC)
       </div>
     </div>
 
@@ -200,7 +203,6 @@ export const attestationTemplate = `
         <tr style="border:none;"><td style="border:none; padding:4px 0;"><strong>Country:</strong></td><td style="border:none; padding:4px 0;">{{COUNTRY}}</td></tr>
         <tr style="border:none;"><td style="border:none; padding:4px 0;"><strong>Assessment Period:</strong></td><td style="border:none; padding:4px 0;">{{ASSESSMENT_PERIOD}}</td></tr>
     </table>
-    <p style="font-size:11px; color:#64748B; margin-top:4px;">User provided all input values. No verification performed.</p>
   </div>
 
   <div class="section">
@@ -260,7 +262,7 @@ export const attestationTemplate = `
 
   <div class="section">
     <h2>3. Emissions Detail</h2>
-    <table>
+    <table role="table" aria-label="Détail des émissions">
       <thead>
         <tr>
           <th width="20%">Scope</th>
@@ -280,19 +282,22 @@ export const attestationTemplate = `
     </table>
   </div>
 
-  <div class="footer" style="position:relative; margin-top:60px;">
-    Page 1/2
-  </div>
-
-  <div class="page-break"></div>
-  
-  <div class="watermark">CERTIF-SCOPE · NON-AUDIT ESTIMATION</div>
+  <div class="hash-block">{{HASH}}</div>
 
   <div class="section">
-    <h2>4. Methodology</h2>
+    <h2>4. Regulatory Context</h2>
+    <ul>
+      <li>Banking compliance and financing pre-assessment</li>
+      <li>ESG questionnaires and supply-chain requests</li>
+      <li>Internal awareness and baseline estimation</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>5. Methodology</h2>
     <p>This methodological assessment applies a standardized spend-based CO₂e conversion aligned with GHG Protocol guidelines. All calculations use EUR reference factors.</p>
     
-    <h3>4.1 Calculation Logic</h3>
+    <h3>5.1 Calculation Logic</h3>
     <ul>
       <li><strong>Scope 1:</strong> Fuel expenses × emission factor</li>
       <li><strong>Scope 2:</strong> Electricity expenses × emission factor</li>
@@ -303,7 +308,7 @@ export const attestationTemplate = `
       <em>Source of emission factors: ADEME Base Empreinte® and recognized monetary ratios for the specific business sector.</em>
     </p>
 
-    <h3>4.2 Purpose & Limitations</h3>
+    <h3>5.2 Purpose & Limitations</h3>
     <p>This provides a <strong>screening-level estimate</strong> suitable for:</p>
     <ul>
         <li>Banking compliance & financing pre-assessment</li>
@@ -316,18 +321,17 @@ export const attestationTemplate = `
   </div>
 
   <div class="section">
-    <h2>5. Data Privacy & Integrity</h2>
+    <h2>6. Data Privacy & Integrity</h2>
     <p>
       <strong>Privacy-First:</strong> All raw financial data processing is performed locally on the client-side. Certif-Scope does not store the user's revenue or expense data.
     </p>
     <p>
-      <strong>Authenticity:</strong> This document is cryptographically hashed. The unique hash displayed below ensures the integrity of the emitted values.
+      <strong>Authenticity:</strong> This document is cryptographically hashed. The unique hash displayed above ensures the integrity of the emitted values.
     </p>
-    <div class="hash-block">{{HASH}}</div>
   </div>
 
   <div class="section">
-    <h2>6. Legal Disclaimer</h2>
+    <h2>7. Legal Disclaimer</h2>
     <p style="font-size:12px; color:var(--text-muted); text-align:justify;">
       This attestation is a methodological estimation provided "as is". Certif-Scope (and its parent entity) assumes no liability for the accuracy of the financial inputs provided by the user. This document is not a certified audit under ISO 14064 standards nor a regulatory declaration. It is intended for informational and voluntary compliance purposes only.
     </p>
@@ -348,11 +352,9 @@ export const attestationTemplate = `
         <div style="margin-bottom:4px;">Issued by Certif-Scope Automated Engine</div>
         <div style="font-size:9px; text-transform:uppercase; color:#94A3B8;">Non-human signature</div>
         <div style="margin-top:8px;">ID: {{ATTESTATION_ID}}</div>
-        <div style="font-size:9px;color:#94A3B8; margin-top:4px;">Trace ID: {{HASH}}</div>
       </div>
     </div>
     <div style="text-align:center; margin-top:20px;">
-        Page 2/2<br>
         <div style="font-size:10px;color:#64748B; margin-top:6px;">Verify: https://certif-scope.com/verify?id={{ATTESTATION_ID}}</div>
         <div style="font-size:9px;margin-top:4px;color:#94A3B8;">Privacy policy: https://certif-scope.com/privacy</div>
     </div>
@@ -363,22 +365,24 @@ export const attestationTemplate = `
   ISSUE_DATE={{ISSUE_DATE_UTC}}
   METHOD_VERSION={{METHODOLOGY_VERSION}}
   GENERATED={{GENERATION_TIMESTAMP}}
-  COMPANY={{COMPANY_NAME}}
-  SECTOR={{BUSINESS_SECTOR}}
+  COMPANY_NAME={{COMPANY_NAME}}
+  BUSINESS_SECTOR={{BUSINESS_SECTOR}}
   COUNTRY={{COUNTRY}}
-  PERIOD={{ASSESSMENT_PERIOD}}
+  ASSESSMENT_PERIOD={{ASSESSMENT_PERIOD}}
   TOTAL={{TOTAL}}
-  SCOPE1={{SCOPE_1}}
-  SCOPE2={{SCOPE_2}}
-  SCOPE3={{SCOPE_3}}
-  PCT1={{SCOPE_1_PERCENT}}
-  PCT2={{SCOPE_2_PERCENT}}
-  PCT3={{SCOPE_3_PERCENT}}
+  SCOPE_1={{SCOPE_1}}
+  SCOPE_2={{SCOPE_2}}
+  SCOPE_3={{SCOPE_3}}
+  SCOPE_1_PERCENT={{SCOPE_1_PERCENT}}
+  SCOPE_2_PERCENT={{SCOPE_2_PERCENT}}
+  SCOPE_3_PERCENT={{SCOPE_3_PERCENT}}
   HASH={{HASH}}
   HASH_SHORT={{HASH_SHORT}}
-  PREPARED_ON={{PREPARED_ON}}
+  QR_CODE={{QR_CODE}}
+  PREPARED_ON={{ISSUE_DATE_UTC}}
   END-CERTIF-SCOPE-MACHINE-DATA -->
 
+  </div>
 </body>
 </html>
 `;
@@ -393,12 +397,12 @@ export function fillAttestationTemplate(data) {
   const pct2 = total > 0 ? ((s2 / total) * 100).toFixed(1) : "0";
   const pct3 = total > 0 ? ((s3 / total) * 100).toFixed(1) : "0";
 
-  const fullHash = data.hash || "PENDING";
-  const shortHash = fullHash.length > 8 ? fullHash.substring(0, 8) + "..." : fullHash;
+  const fullHash = String(data.hash || "PENDING");
+  const shortHash = fullHash.substring(0, 8);
 
   const map = {
     ATTESTATION_ID: data.attestationId || "",
-    ISSUE_DATE_UTC: data.issueDate || new Date().toISOString(),
+    ISSUE_DATE_UTC: data.issueDate ? String(data.issueDate).split("T")[0] : new Date().toISOString().split("T")[0],
     COMPANY_NAME: data.companyName || "",
     BUSINESS_SECTOR: data.sector || "",
     COUNTRY: data.country || "France",
@@ -410,12 +414,14 @@ export function fillAttestationTemplate(data) {
     SCOPE_1_PERCENT: pct1,
     SCOPE_2_PERCENT: pct2,
     SCOPE_3_PERCENT: pct3,
-    METHODOLOGY_VERSION: "3.1",
-    GENERATION_TIMESTAMP: new Date().toISOString(),
-    PREPARED_ON: data.preparedOn || new Date().toISOString(),
+    METHODOLOGY_VERSION: data.methodologyVersion || "3.1",
+    GENERATION_TIMESTAMP:
+      data.generationTimestamp ||
+      new Date().toISOString().split("T")[0],
+    PREPARED_ON: data.preparedOn ? String(data.preparedOn).split("T")[0] : (data.issueDate ? String(data.issueDate).split("T")[0] : new Date().toISOString().split("T")[0]),
     QR_CODE: data.qrCodeUrl
       ? `<img src="${data.qrCodeUrl}" width="110" height="110" alt="QR Code Verification" />`
-      : "<div style='width:110px;height:110px;background:#eee;'></div>",
+      : "",
     HASH: fullHash,
     HASH_SHORT: shortHash
   };
@@ -427,4 +433,4 @@ export function fillAttestationTemplate(data) {
   }
 
   return html;
-    }
+}
