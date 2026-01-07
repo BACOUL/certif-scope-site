@@ -42,7 +42,7 @@ export default function Legal() {
               SIREN : <strong>999356439</strong><br />
               Adresse : 3 rue de l’Église de Louppy, 55000 Les Hauts-de-Chée, France<br />
               Régime TVA : franchise en base – TVA non applicable (article 293 B du CGI)<br />
-              Email de contact : <a href="mailto:contact@timeproofs.io" className="text-[#1FB6C1]">contact@timeproofs.io</a>
+              Email de contact : <a href="mailto:support@certif-scope.com" className="text-[#1FB6C1]">support@certif-scope.com</a>
             </p>
           </section>
 
@@ -128,8 +128,8 @@ export default function Legal() {
             </h2>
             <p className="text-[#475569] text-sm">
               For any legal request, you may contact:<br />
-              <a href="mailto:contact@timeproofs.io" className="text-[#1FB6C1] font-semibold">
-                contact@timeproofs.io
+              <a href="mailto:support@certif-scope.com" className="text-[#1FB6C1] font-semibold">
+                support@certif-scope.com
               </a>
             </p>
           </section>
