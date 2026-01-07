@@ -14,13 +14,12 @@ export const attestationTemplate = `
       --text-muted: #475569;
       --border: #E2E8F0;
       --bg-soft: #F8FAFC;
-      --green-dark: #0A7F4F;
     }
 
     body {
       margin: 0;
       padding: 40px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, Inter, Arial, sans-serif;
       color: var(--text-main);
       background: white;
       font-size: 14px;
@@ -30,6 +29,7 @@ export const attestationTemplate = `
     h1, h2, h3 { color: var(--blue-dark); margin: 0 0 12px 0; }
     h1 { font-size: 26px; }
     h2 { font-size: 18px; margin-top: 36px; }
+    h3 { font-size: 15px; margin-top: 24px; }
 
     .header {
       border-bottom: 2px solid var(--border);
@@ -41,7 +41,7 @@ export const attestationTemplate = `
     }
 
     .brand {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 800;
     }
 
@@ -50,14 +50,7 @@ export const attestationTemplate = `
       color: var(--text-muted);
     }
 
-    .qr-box {
-      text-align: right;
-    }
-
-    .qr-box img {
-      width: 120px;
-      height: 120px;
-    }
+    .qr-box img { width: 130px; height: 130px; }
 
     .section { margin-bottom: 28px; }
 
@@ -72,7 +65,7 @@ export const attestationTemplate = `
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 12px;
+      margin-top: 14px;
       font-size: 13px;
     }
 
@@ -87,44 +80,25 @@ export const attestationTemplate = `
       font-weight: 600;
     }
 
-    /* CHART STYLE */
-    .chart {
-      margin-top: 20px;
-      width: 100%;
-    }
-
-    .chart-row {
+    .graph {
+      margin-top: 18px;
       display: flex;
+      gap: 16px;
       align-items: center;
-      margin-bottom: 12px;
     }
-
-    .chart-label {
-      width: 80px;
-      font-size: 13px;
-      color: var(--blue-dark);
-      font-weight: 600;
-    }
-
-    .chart-bar {
+    .bar {
       height: 14px;
       border-radius: 6px;
-      margin: 0 10px;
     }
 
-    .bar-s1 { background-color: var(--blue-light); }
-    .bar-s2 { background-color: var(--blue-dark); }
-    .bar-s3 { background-color: var(--green-dark); }
-
-    .chart-value {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-main);
-      min-width: 80px;
+    /* PAGE BREAK FOR PDF */
+    .page-break {
+      page-break-before: always;
+      margin-top: 40px;
     }
 
     .footer {
-      margin-top: 48px;
+      margin-top: 40px;
       padding-top: 16px;
       border-top: 1px solid var(--border);
       font-size: 12px;
@@ -135,25 +109,25 @@ export const attestationTemplate = `
 
 <body>
 
-  <!-- HEADER -->
+  <!-- PAGE 1 ------------------------------------------------ -->
   <div class="header">
     <div>
       <div class="brand">
         <span style="color:#0B3A63;">Certif-</span><span style="color:#1FB6C1;">Scope</span>
       </div>
       <div class="meta">
-        Carbon Footprint Attestation (Methodological) · Version v3<br />
+        Carbon Footprint Attestation (Methodological) — v3<br>
         Document ID: {{ATTESTATION_ID}} · Issued {{ISSUE_DATE_UTC}} (UTC)
       </div>
     </div>
 
     <div class="qr-box">
-      <img src="{{QR_CODE}}" alt="QR Code Verification" />
-      <div class="meta">Scan to verify</div>
+      <img src="{{QR_CODE}}" alt="QR Verification" />
+      <div class="meta">Scan to verify authenticity</div>
     </div>
   </div>
 
-  <!-- 1. ENTITY IDENTIFICATION -->
+  <!-- ENTITY -->
   <div class="section">
     <h2>1. Entity identification</h2>
     <p><strong>Company name:</strong> {{COMPANY_NAME}}</p>
@@ -162,26 +136,44 @@ export const attestationTemplate = `
     <p><strong>Assessment period:</strong> {{ASSESSMENT_PERIOD}}</p>
   </div>
 
-  <!-- 2. EXECUTIVE SUMMARY -->
+  <!-- EXECUTIVE SUMMARY -->
   <div class="section">
     <h2>2. Executive summary</h2>
     <p>
-      This document provides a <strong>methodological carbon footprint attestation</strong>
-      based on standardized estimation methods.
+      This methodological attestation provides a standardized CO₂e estimation for the assessed period.
+      All calculations follow a simplified GHG Protocol–inspired spend-based model.
     </p>
 
     <div class="box">
       <p><strong>Scope 1:</strong> {{SCOPE_1}} tCO₂e</p>
       <p><strong>Scope 2:</strong> {{SCOPE_2}} tCO₂e</p>
       <p><strong>Scope 3:</strong> {{SCOPE_3}} tCO₂e</p>
-      <p class="total"><strong>Total estimated emissions:</strong> {{TOTAL}} tCO₂e</p>
+      <p><strong>Total estimated emissions:</strong> {{TOTAL}} tCO₂e</p>
+    </div>
+
+    <!-- GRAPHIC REPRESENTATION -->
+    <div class="graph">
+      <div style="width:120px;">Scope 1</div>
+      <div class="bar" style="width: calc({{SCOPE_1}} * 4px); background:#1FB6C1;"></div>
+      <div>{{SCOPE_1}} t</div>
+    </div>
+
+    <div class="graph">
+      <div style="width:120px;">Scope 2</div>
+      <div class="bar" style="width: calc({{SCOPE_2}} * 4px); background:#0B3A63;"></div>
+      <div>{{SCOPE_2}} t</div>
+    </div>
+
+    <div class="graph">
+      <div style="width:120px;">Scope 3</div>
+      <div class="bar" style="width: calc({{SCOPE_3}} * 4px); background:#475569;"></div>
+      <div>{{SCOPE_3}} t</div>
     </div>
   </div>
 
-  <!-- 3. EMISSIONS BY SCOPE -->
+  <!-- TABLE -->
   <div class="section">
     <h2>3. Emissions by scope</h2>
-
     <table>
       <thead>
         <tr>
@@ -191,90 +183,62 @@ export const attestationTemplate = `
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>Scope 1</td>
-          <td>Direct emissions</td>
-          <td>{{SCOPE_1}} tCO₂e</td>
-        </tr>
-        <tr>
-          <td>Scope 2</td>
-          <td>Indirect energy emissions</td>
-          <td>{{SCOPE_2}} tCO₂e</td>
-        </tr>
-        <tr>
-          <td>Scope 3</td>
-          <td>Value-chain emissions (screening level)</td>
-          <td>{{SCOPE_3}} tCO₂e</td>
-        </tr>
+        <tr><td>Scope 1</td><td>Direct emissions</td><td>{{SCOPE_1}} tCO₂e</td></tr>
+        <tr><td>Scope 2</td><td>Energy indirect emissions</td><td>{{SCOPE_2}} tCO₂e</td></tr>
+        <tr><td>Scope 3</td><td>Value-chain emissions (screening)</td><td>{{SCOPE_3}} tCO₂e</td></tr>
       </tbody>
     </table>
   </div>
 
-  <!-- 4. VISUAL CHART -->
-  <div class="section">
-    <h2>4. Visual breakdown of emissions</h2>
+  <!-- PAGE BREAK -->
+  <div class="page-break"></div>
 
-    <div class="chart">
-      <div class="chart-row">
-        <div class="chart-label">Scope 1</div>
-        <div class="chart-bar bar-s1" style="width: calc({{SCOPE_1}} * 1%);"></div>
-        <div class="chart-value">{{SCOPE_1}} tCO₂e</div>
-      </div>
+  <!-- PAGE 2 ------------------------------------------------ -->
+  <h2>4. Methodology (detailed)</h2>
+  <p>
+    The estimation model uses a spend-based conversion aligned with the GHG Protocol guidelines.
+    It converts annual financial expenditure into CO₂e using standardized emission factors.
+  </p>
 
-      <div class="chart-row">
-        <div class="chart-label">Scope 2</div>
-        <div class="chart-bar bar-s2" style="width: calc({{SCOPE_2}} * 1%);"></div>
-        <div class="chart-value">{{SCOPE_2}} tCO₂e</div>
-      </div>
+  <h3>4.1 Calculation principles</h3>
+  <ul>
+    <li>Fuel expenses × emission factor = Scope 1 CO₂e</li>
+    <li>Electricity expenses × emission factor = Scope 2 CO₂e</li>
+    <li>Annual revenue × sector coefficient = Scope 3 CO₂e</li>
+  </ul>
 
-      <div class="chart-row">
-        <div class="chart-label">Scope 3</div>
-        <div class="chart-bar bar-s3" style="width: calc({{SCOPE_3}} * 1%);"></div>
-        <div class="chart-value">{{SCOPE_3}} tCO₂e</div>
-      </div>
-    </div>
-  </div>
+  <h3>4.2 Limits of the model</h3>
+  <p>
+    This attestation provides a screening-level estimation.  
+    It does not include activity-based inputs or primary emission factors from suppliers.
+  </p>
 
-  <!-- 5. METHODOLOGY -->
-  <div class="section">
-    <h2>5. Methodology</h2>
-    <p>
-      This assessment applies a <strong>spend-based estimation approach</strong> inspired by the GHG Protocol.
-    </p>
-  </div>
+  <h2>5. Regulatory context</h2>
+  <p>
+    This document supports:
+  </p>
+  <ul>
+    <li>ESG screening questionnaires</li>
+    <li>Banking and financing pre-assessment</li>
+    <li>Supply-chain sustainability requests (Scope 3)</li>
+  </ul>
 
-  <!-- 6. REGULATORY CONTEXT -->
-  <div class="section">
-    <h2>6. Regulatory context</h2>
-    <p>
-      This attestation supports ESG and CSRD Scope 3 data requests from banks, insurers and partners.
-    </p>
-  </div>
+  <h2>6. Data handling & confidentiality</h2>
+  <p>
+    All calculations are performed locally.  
+    Certif-Scope does not store business inputs, ensuring full confidentiality.
+  </p>
 
-  <!-- 7. DATA PROCESSING -->
-  <div class="section">
-    <h2>7. Data processing & confidentiality</h2>
-    <p>
-      All calculations are performed <strong>locally</strong> and no raw business data is stored by Certif-Scope.
-    </p>
-  </div>
+  <h2>7. Legal notice & usage limitations</h2>
+  <p>
+    This attestation is an estimation, not a certified audit and not a CSRD declaration.
+    It must not be used for regulatory reporting or official carbon accounting submissions.
+  </p>
 
-  <!-- 8. LEGAL LIMITS -->
-  <div class="section">
-    <h2>8. Legal notice & limitations</h2>
-    <p>
-      This attestation is a <strong>methodological estimation</strong>, not a certified audit and not a CSRD declaration.
-    </p>
-    <p>
-      It is intended for ESG questionnaires, banking due-diligence and supply-chain pre-compliance.
-    </p>
-  </div>
-
-  <!-- FOOTER -->
   <div class="footer">
-    Issued by Certif-Scope — A subsidiary of TimeProofs<br />
-    Official contact: support@certif-scope.com<br />
-    Methodology version {{METHODOLOGY_VERSION}} · Generated {{GENERATION_TIMESTAMP}} (UTC)
+    Issued by Certif-Scope — Subsidiary of TimeProofs<br>
+    Contact: support@certif-scope.com<br>
+    Methodology v{{METHODOLOGY_VERSION}} · Generated {{GENERATION_TIMESTAMP}} (UTC)
   </div>
 
 </body>
