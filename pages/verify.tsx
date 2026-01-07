@@ -8,25 +8,33 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Load query params when page loads
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const params = new URLSearchParams(window.location.search);
-    const urlId = params.get("id");
-    const urlHash = params.get("hash");
+    const qid = params.get("id");
+    const qhash = params.get("hash");
 
-    if (urlId) setId(urlId);
-    if (urlHash) setHash(urlHash);
+    if (qid) setId(qid);
+    if (qhash) setHash(qhash);
+
+    // auto-verify only if parameters are complete
+    if (qid && qhash && qhash.length === 64) {
+      verify(qid, qhash);
+    }
   }, []);
 
   async function verify(customId?: string, customHash?: string) {
     const finalId = (customId || id).trim();
     const finalHash = (customHash || hash).trim();
 
+    // Basic client-side checks
     if (finalId.length < 20) {
       setError("Invalid Attestation ID.");
       return;
     }
+
     if (!/^[a-fA-F0-9]{64}$/.test(finalHash)) {
       setError("Invalid SHA-256 hash format.");
       return;
@@ -37,46 +45,50 @@ export default function VerifyPage() {
     setResult(null);
 
     try {
-      const urls = [
+      const sources = [
         "https://raw.githubusercontent.com/BACOUL/certif-scope/main/attestations.json",
-        "/attestations.json"
+        "/attestations.json",
       ];
 
       let json: any = null;
 
-      for (const url of urls) {
+      for (const src of sources) {
         try {
-          const res = await fetch(url, { cache: "no-store" });
+          const res = await fetch(src, { cache: "no-store" });
           if (res.ok) {
             json = await res.json();
             break;
           }
-        } catch (e) {
+        } catch {
           continue;
         }
       }
 
-      if (!json || !json.attestations) {
-        setError("Verification service temporarily unavailable.");
+      if (!json || !Array.isArray(json.attestations)) {
+        setError("Verification service unavailable.");
         setLoading(false);
         return;
       }
 
       const match = json.attestations.find(
         (item: any) =>
-          item.id.trim() === finalId &&
-          item.hash.trim().toLowerCase() === finalHash.toLowerCase()
+          String(item.id).trim() === finalId &&
+          String(item.hash).trim().toLowerCase() === finalHash.toLowerCase()
       );
 
-      setResult(match ? { valid: true, item: match } : { valid: false });
+      setResult(
+        match
+          ? { valid: true, item: match }
+          : { valid: false }
+      );
     } catch (err) {
-      setError("Unexpected error. Try again later.");
+      setError("Unexpected server error. Please try later.");
     }
 
     setLoading(false);
   }
 
-  const canVerify =
+  const ready =
     id.trim().length >= 20 && /^[a-fA-F0-9]{64}$/.test(hash.trim());
 
   return (
@@ -95,10 +107,10 @@ export default function VerifyPage() {
         </h1>
 
         <p className="text-xs text-slate-500 mb-6">
-          Certif-Scope is operated by <strong>TimeProofs</strong>.  
-          Support: <strong>contact@certif-scope.com</strong>
+          Certif-Scope is operated by TimeProofs. Support: <strong>contact@certif-scope.com</strong>
         </p>
 
+        {/* INPUT CARD */}
         <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm space-y-6">
 
           <div>
@@ -125,9 +137,9 @@ export default function VerifyPage() {
 
           <button
             onClick={() => verify()}
-            disabled={loading || !canVerify}
+            disabled={loading || !ready}
             className={`w-full py-3 rounded-lg text-white font-semibold shadow-md transition ${
-              canVerify
+              ready
                 ? "bg-[#1FB6C1] hover:bg-[#17A2AC]"
                 : "bg-slate-300 cursor-not-allowed"
             }`}
@@ -136,19 +148,25 @@ export default function VerifyPage() {
           </button>
         </div>
 
+        {/* ERROR */}
         {error && (
-          <p className="mt-6 text-red-600 font-semibold text-center">{error}</p>
+          <p className="mt-6 text-red-600 font-semibold text-center">
+            {error}
+          </p>
         )}
 
+        {/* RESULT */}
         {result && (
           <div className="mt-10 p-6 bg-white border border-slate-300 rounded-xl shadow-sm">
+
             {result.valid ? (
               <>
                 <p className="text-green-600 font-bold text-xl mb-2">
                   ✔ VALID — Attestation Authentic
                 </p>
-                <p className="text-sm text-slate-700">
-                  Hash & ID match the official registry.
+
+                <p className="text-sm text-slate-700 mb-4">
+                  The ID and SHA-256 hash match the official registry.
                 </p>
 
                 <div className="mt-4 text-sm text-slate-700 space-y-1">
@@ -163,21 +181,20 @@ export default function VerifyPage() {
                   ✖ INVALID — No match found
                 </p>
                 <p className="text-sm text-slate-700">
-                  The combination of ID and Hash is not registered.
+                  The provided ID and hash do not appear in the registry.
                 </p>
               </>
             )}
+
           </div>
         )}
 
-        {/* LEGAL LINKS */}
         <div className="text-center mt-10 text-xs text-slate-500 space-x-4">
           <Link href="/legal" className="text-[#1FB6C1]">Legal</Link>
           <Link href="/privacy" className="text-[#1FB6C1]">Privacy</Link>
           <Link href="/refund-policy" className="text-[#1FB6C1]">Refund Policy</Link>
         </div>
-
       </div>
     </div>
   );
-      }
+  }
