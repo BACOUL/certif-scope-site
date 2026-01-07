@@ -18,12 +18,14 @@
     "puppeteer-core": "10.1.0",
     "react": "latest",
     "react-dom": "latest",
-    "stripe": "^20.1.1"
+    "stripe": "^20.1.1",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/uuid": "^10.0.0",
     "autoprefixer": "latest",
     "postcss": "latest",
     "tailwindcss": "latest",
