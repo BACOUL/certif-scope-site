@@ -1,5 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
+/**
+ * This endpoint writes (ID, SHA-256) into GitHub attestations.json.
+ * It is called server-side by /api/attestation only.
+ * It must be POST-only, atomic and consistent.
+ */
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -7,26 +13,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { id, hash } = req.body;
 
-  // Basic JSON validation
+  // -----------------------------
+  // 1) Basic validation
+  // -----------------------------
   if (typeof id !== "string" || typeof hash !== "string") {
     return res.status(400).json({ error: "Invalid ID or hash format" });
   }
 
-  if (id.length < 10 || hash.length !== 64) {
-    return res.status(400).json({ error: "Malformed ID or hash" });
+  if (!/^[a-fA-F0-9]{64}$/.test(hash)) {
+    return res.status(400).json({ error: "Invalid SHA-256 hash" });
   }
 
+  if (id.length < 20) {
+    return res.status(400).json({ error: "Invalid attestation ID" });
+  }
+
+  // -----------------------------
+  // 2) Ensure GitHub token exists
+  // -----------------------------
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) {
+    return res.status(500).json({ error: "Missing GitHub token" });
+  }
+
+  const GH_URL =
+    "https://api.github.com/repos/BACOUL/certif-scope/contents/attestations.json";
+
   try {
-    const token = process.env.GITHUB_TOKEN;
-
-    if (!token) {
-      return res.status(500).json({ error: "Missing GitHub token" });
-    }
-
-    const GH_URL =
-      "https://api.github.com/repos/BACOUL/certif-scope/contents/attestations.json";
-
-    // === 1) Fetch latest version of attestations.json ===
+    // -----------------------------
+    // 3) Get existing file
+    // -----------------------------
     const raw = await fetch(GH_URL, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -35,43 +51,67 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       cache: "no-store",
     });
 
-    if (!raw.ok) {
+    let file;
+    let existingJson;
+
+    if (raw.status === 404) {
+      // File does not exist yet → create structure
+      existingJson = { attestations: [] };
+      file = null;
+    } else if (!raw.ok) {
       return res.status(500).json({
         error: "Unable to fetch attestations.json",
-        ghStatus: raw.status,
+        githubStatus: raw.status,
+      });
+    } else {
+      file = await raw.json();
+
+      try {
+        const decoded = Buffer.from(file.content, "base64").toString("utf8");
+        existingJson = JSON.parse(decoded);
+      } catch {
+        existingJson = { attestations: [] };
+      }
+    }
+
+    // -----------------------------
+    // 4) De-duplicate entries
+    // -----------------------------
+    const exists = existingJson.attestations.find((item: any) => item.id === id);
+    if (exists) {
+      return res.status(200).json({
+        success: true,
+        note: "Already registered",
+        id,
+        hash,
       });
     }
 
-    const file = await raw.json();
-
-    // === 2) Decode existing content ===
-    let json;
-    try {
-      const existingContent = Buffer.from(file.content, "base64").toString("utf8");
-      json = JSON.parse(existingContent);
-    } catch {
-      // Fallback in case file is missing or corrupted
-      json = { attestations: [] };
-    }
-
-    // === 3) Prevent duplicates ===
-    const exists = json.attestations.find((item: any) => item.id === id);
-    if (exists) {
-      return res.status(200).json({ success: true, note: "Already registered" });
-    }
-
-    // === 4) Append new entry ===
-    json.attestations.push({
+    // -----------------------------
+    // 5) Append new entry
+    // -----------------------------
+    existingJson.attestations.push({
       id,
       hash,
       timestamp: new Date().toISOString(),
     });
 
-    const updatedContent = Buffer.from(
-      JSON.stringify(json, null, 2)
+    const newContent = Buffer.from(
+      JSON.stringify(existingJson, null, 2)
     ).toString("base64");
 
-    // === 5) Commit to GitHub ===
+    // -----------------------------
+    // 6) Commit updated file
+    // -----------------------------
+    const commitBody: any = {
+      message: `Register attestation ${id}`,
+      content: newContent,
+    };
+
+    if (file?.sha) {
+      commitBody.sha = file.sha;
+    }
+
     const commitRes = await fetch(GH_URL, {
       method: "PUT",
       headers: {
@@ -79,27 +119,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         Accept: "application/vnd.github+json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        message: `Register attestation ${id}`,
-        content: updatedContent,
-        sha: file.sha, // required for updates
-      }),
+      body: JSON.stringify(commitBody),
     });
 
     if (!commitRes.ok) {
-      const text = await commitRes.text();
+      const details = await commitRes.text();
       return res.status(500).json({
         error: "GitHub commit failed",
-        ghStatus: commitRes.status,
-        details: text,
+        githubStatus: commitRes.status,
+        details,
       });
     }
 
+    // -----------------------------
+    // 7) Success
+    // -----------------------------
     return res.status(200).json({ success: true, id, hash });
   } catch (err: any) {
-    console.error("REGISTER ERROR:", err);
-    return res
-      .status(500)
-      .json({ error: "Unexpected server error", details: err.message });
+    console.error("REGISTER-ERROR:", err);
+    return res.status(500).json({
+      error: "Unexpected server error",
+      details: err.message,
+    });
   }
-  }
+}
