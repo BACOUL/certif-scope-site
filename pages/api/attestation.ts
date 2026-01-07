@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import QRCode from "qrcode";
 import { attestationTemplate } from "../../lib/attestationTemplate";
 
-/* Replace placeholders */
+/* Replace placeholders in HTML */
 function fillTemplate(template: string, data: Record<string, string>) {
   let html = template;
   for (const key in data) {
@@ -15,7 +15,7 @@ function fillTemplate(template: string, data: Record<string, string>) {
   return html;
 }
 
-/* SHA-256 hash generator */
+/* Compute SHA-256 hash */
 function computeHash(buffer: Buffer) {
   return crypto.createHash("sha256").update(buffer).digest("hex");
 }
@@ -26,6 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    // Unique attestation ID
     const attestationId = uuidv4();
     const report = req.body;
 
@@ -33,20 +34,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Missing report data" });
     }
 
-    // ---------------------------
-    // 1) Verification URL
-    // ---------------------------
+    // Base URL for QR and registry API
     const baseUrl = req.headers.origin || "https://certif-scope.vercel.app";
-    const verifyUrl = `${baseUrl}/verify?id=${attestationId}`;
 
-    // ---------------------------
-    // 2) Generate QR Code
-    // ---------------------------
+    // Verification URL (QR code points here)
+    const verifyUrl = `${baseUrl}/verify?id=${attestationId}&hash=__HASH__`;
+
+    // Generate QR code
     const qrCodeDataUrl = await QRCode.toDataURL(verifyUrl);
 
-    // ---------------------------
-    // 3) Generate full HTML
-    ---------------------------
+    // Fill HTML template
     const filledHTML = fillTemplate(attestationTemplate, {
       ATTESTATION_ID: attestationId,
       ISSUE_DATE_UTC: new Date().toISOString(),
@@ -63,14 +60,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       QR_CODE: qrCodeDataUrl
     });
 
-    // ---------------------------
-    // 4) Launch Chromium
-    // ---------------------------
+    // Determine chromium executable path for Vercel
     const executablePath =
       process.env.NODE_ENV === "development"
         ? undefined
         : await chromium.executablePath;
 
+    // Launch headless browser
     const browser = await puppeteer.launch({
       args: chromium.args,
       executablePath,
@@ -80,25 +76,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const page = await browser.newPage();
     await page.setContent(filledHTML, { waitUntil: "networkidle0" });
 
+    // Render PDF
     const pdfBuffer = await page.pdf({
       format: "a4",
-      printBackground: true
+      printBackground: true,
+      margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" }
     });
 
     await browser.close();
 
-    // ---------------------------
-    // 5) SHA-256 hash
-    // ---------------------------
+    // Compute SHA-256 hash
     const pdfHash = computeHash(pdfBuffer);
 
-    // ---------------------------
-    // 6) Register in GitHub registry
-    // ---------------------------
+    // Register attestation in GitHub
     const registerRes = await fetch(`${baseUrl}/api/register-attestation`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: attestationId, hash: pdfHash })
+      body: JSON.stringify({
+        id: attestationId,
+        hash: pdfHash
+      })
     });
 
     if (!registerRes.ok) {
@@ -109,12 +106,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // ---------------------------
-    // 7) Return metadata + PDF
-    // ---------------------------
+    // Replace placeholder hash inside verifyUrl returned to frontend
+    const finalVerifyUrl = verifyUrl.replace("__HASH__", pdfHash);
+
+    // Deliver PDF + metadata
     return res.status(200).json({
       id: attestationId,
       hash: pdfHash,
+      verifyUrl: finalVerifyUrl,
       pdfBase64: pdfBuffer.toString("base64")
     });
 
@@ -125,4 +124,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       details: err.message
     });
   }
-      }
+}
