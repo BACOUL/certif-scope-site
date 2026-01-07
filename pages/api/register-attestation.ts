@@ -7,8 +7,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { id, hash } = req.body;
 
-  if (!id || !hash) {
-    return res.status(400).json({ error: "Missing id or hash" });
+  // Basic JSON validation
+  if (typeof id !== "string" || typeof hash !== "string") {
+    return res.status(400).json({ error: "Invalid ID or hash format" });
+  }
+
+  if (id.length < 10 || hash.length !== 64) {
+    return res.status(400).json({ error: "Malformed ID or hash" });
   }
 
   try {
@@ -18,61 +23,83 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(500).json({ error: "Missing GitHub token" });
     }
 
-    // === 1) Get current attestations.json ===
-    const raw = await fetch(
-      "https://api.github.com/repos/BACOUL/certif-scope/contents/attestations.json",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/vnd.github+json",
-        },
-      }
-    );
+    const GH_URL =
+      "https://api.github.com/repos/BACOUL/certif-scope/contents/attestations.json";
+
+    // === 1) Fetch latest version of attestations.json ===
+    const raw = await fetch(GH_URL, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+      cache: "no-store",
+    });
 
     if (!raw.ok) {
-      return res.status(500).json({ error: "Unable to fetch attestations.json" });
+      return res.status(500).json({
+        error: "Unable to fetch attestations.json",
+        ghStatus: raw.status,
+      });
     }
 
     const file = await raw.json();
 
-    const existingContent = Buffer.from(file.content, "base64").toString("utf8");
-    const json = JSON.parse(existingContent);
+    // === 2) Decode existing content ===
+    let json;
+    try {
+      const existingContent = Buffer.from(file.content, "base64").toString("utf8");
+      json = JSON.parse(existingContent);
+    } catch {
+      // Fallback in case file is missing or corrupted
+      json = { attestations: [] };
+    }
 
-    // === 2) Add entry ===
+    // === 3) Prevent duplicates ===
+    const exists = json.attestations.find((item: any) => item.id === id);
+    if (exists) {
+      return res.status(200).json({ success: true, note: "Already registered" });
+    }
+
+    // === 4) Append new entry ===
     json.attestations.push({
       id,
       hash,
       timestamp: new Date().toISOString(),
     });
 
-    // === 3) Encode new content ===
-    const updatedContent = Buffer.from(JSON.stringify(json, null, 2)).toString("base64");
+    const updatedContent = Buffer.from(
+      JSON.stringify(json, null, 2)
+    ).toString("base64");
 
-    // === 4) Commit update to GitHub ===
-    const commitRes = await fetch(
-      "https://api.github.com/repos/BACOUL/certif-scope/contents/attestations.json",
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/vnd.github+json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: `Add attestation ${id}`,
-          content: updatedContent,
-          sha: file.sha,
-        }),
-      }
-    );
+    // === 5) Commit to GitHub ===
+    const commitRes = await fetch(GH_URL, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: `Register attestation ${id}`,
+        content: updatedContent,
+        sha: file.sha, // required for updates
+      }),
+    });
 
     if (!commitRes.ok) {
       const text = await commitRes.text();
-      return res.status(500).json({ error: "GitHub commit failed", details: text });
+      return res.status(500).json({
+        error: "GitHub commit failed",
+        ghStatus: commitRes.status,
+        details: text,
+      });
     }
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, id, hash });
   } catch (err: any) {
-    return res.status(500).json({ error: "Unexpected error", details: err.message });
+    console.error("REGISTER ERROR:", err);
+    return res
+      .status(500)
+      .json({ error: "Unexpected server error", details: err.message });
   }
-}
+  }
