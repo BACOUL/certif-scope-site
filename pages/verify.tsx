@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import Link from "next/link";
 
 export default function VerifyPage() {
   const [id, setId] = useState("");
@@ -8,7 +7,7 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Load query params
+  // Load query params auto-filled (QR codes, PDF links)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -28,7 +27,6 @@ export default function VerifyPage() {
     const finalId = (customId || id).trim();
     const finalHash = (customHash || hash).trim().toLowerCase();
 
-    // Validation formats
     if (finalId.length < 20) {
       setError("Invalid Attestation ID.");
       return;
@@ -83,28 +81,39 @@ export default function VerifyPage() {
   }
 
   const ready =
-    id.trim().length >= 20 && /^[a-f0-9]{64}$/i.test(hash.trim());
+    id.trim().length >= 20 &&
+    /^[a-f0-9]{64}$/i.test(hash.trim());
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#1E293B] px-6 py-16">
-      <div className="max-w-2xl mx-auto">
+    <>
+      {/* HEADER */}
+      <div className="sticky top-0 bg-white border-b border-[#E2E8F0] py-4 px-6 md:px-12 z-40 shadow-sm">
+        <div className="max-w-[1200px] mx-auto flex items-center justify-between">
+          <a
+            href="/"
+            className="text-[#0B3A63] font-semibold hover:text-[#1FB6C1] transition flex items-center gap-2"
+          >
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 4L6 9L12 14" />
+            </svg>
+            Back to Certif-Scope
+          </a>
+        </div>
+      </div>
 
-        <Link
-          href="/"
-          className="inline-block mb-10 text-sm font-semibold text-[#1FB6C1]"
-        >
-          ← Back to Certif-Scope
-        </Link>
+      {/* MAIN CONTAINER */}
+      <div className="max-w-[1200px] mx-auto pt-10 px-6 md:px-12 pb-20 text-[#334155]">
 
-        <h1 className="text-3xl md:text-4xl font-black mb-2 text-[#0B3A63]">
+        <h1 className="text-3xl md:text-4xl font-black text-[#0B3A63] text-center mb-2">
           Verify Attestation
         </h1>
 
-        <p className="text-xs text-slate-500 mb-6">
-          Certif-Scope — Independent automated verification system.
+        <p className="text-sm text-center text-[#475569] mb-10">
+          Independent cryptographic verification of CO₂ attestations
         </p>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm space-y-6">
+        {/* FORM CONTAINER */}
+        <div className="bg-white border border-[#E2E8F0] rounded-xl p-8 shadow-sm max-w-xl mx-auto space-y-6">
 
           <div>
             <label className="text-sm font-semibold">Attestation ID</label>
@@ -112,8 +121,8 @@ export default function VerifyPage() {
               type="text"
               value={id}
               onChange={(e) => setId(e.target.value)}
-              className="mt-2 w-full border border-slate-300 rounded-lg p-3 text-sm"
-              placeholder="UUID (auto-filled if using QR code)"
+              className="mt-2 w-full border border-[#CBD5E1] rounded-lg p-3 text-sm"
+              placeholder="Auto-filled if scanning QR code"
             />
           </div>
 
@@ -123,7 +132,7 @@ export default function VerifyPage() {
               type="text"
               value={hash}
               onChange={(e) => setHash(e.target.value)}
-              className="mt-2 w-full border border-slate-300 rounded-lg p-3 text-sm"
+              className="mt-2 w-full border border-[#CBD5E1] rounded-lg p-3 text-sm"
               placeholder="64 characters"
             />
           </div>
@@ -131,32 +140,35 @@ export default function VerifyPage() {
           <button
             onClick={() => verify()}
             disabled={!ready || loading}
-            className={`w-full py-3 rounded-lg text-white font-semibold ${
-              ready
-                ? "bg-[#1FB6C1] hover:bg-[#17A2AC]"
-                : "bg-slate-300 cursor-not-allowed"
+            className={`w-full py-3 rounded-lg text-white font-semibold transition ${
+              ready ? "bg-[#1FB6C1] hover:bg-[#17A2AC]" : "bg-slate-300 cursor-not-allowed"
             }`}
           >
             {loading ? "Verifying..." : "Verify Attestation"}
           </button>
+
         </div>
 
+        {/* ERROR MESSAGE */}
         {error && (
-          <p className="mt-6 text-red-600 font-semibold text-center">{error}</p>
+          <p className="text-center mt-6 text-red-600 font-semibold">{error}</p>
         )}
 
+        {/* RESULT */}
         {result && (
-          <div className="mt-10 p-6 bg-white border border-slate-300 rounded-xl shadow-sm">
+          <div className="mt-10 p-8 bg-white border border-[#E2E8F0] rounded-xl shadow-sm max-w-xl mx-auto">
+
             {result.valid ? (
               <>
-                <p className="text-green-600 font-bold text-xl mb-2">
+                <h2 className="text-2xl font-black text-[#0B3A63] mb-2 text-center">
                   ✔ VALID — Official Record Found
-                </p>
-                <p className="text-sm mb-4">
-                  This attestation is registered in the Certif-Scope registry.
+                </h2>
+
+                <p className="text-[#475569] text-center mb-6">
+                  This attestation exists in the Certif-Scope verification registry.
                 </p>
 
-                <div className="text-sm space-y-1">
+                <div className="text-sm text-[#475569] space-y-1">
                   <p><strong>ID:</strong> {id}</p>
                   <p><strong>SHA-256:</strong> {hash}</p>
                   <p><strong>Registered:</strong> {result.item.timestamp}</p>
@@ -164,23 +176,28 @@ export default function VerifyPage() {
               </>
             ) : (
               <>
-                <p className="text-red-600 font-bold text-xl mb-2">
-                  ✖ INVALID — No matching record
-                </p>
-                <p className="text-sm">
-                  The provided ID and hash are not registered. The document may be altered or not issued by Certif-Scope.
+                <h2 className="text-2xl font-black text-red-600 mb-2 text-center">
+                  ✖ INVALID — No Record Found
+                </h2>
+
+                <p className="text-[#475569] text-center">
+                  The provided ID and hash do not match any registered attestation.  
+                  The document may be altered or not issued by Certif-Scope.
                 </p>
               </>
             )}
+
           </div>
         )}
 
-        <div className="text-center mt-10 text-xs text-slate-500 space-x-4">
-          <Link href="/legal" className="text-[#1FB6C1]">Legal</Link>
-          <Link href="/privacy" className="text-[#1FB6C1]">Privacy</Link>
-          <Link href="/refund-policy" className="text-[#1FB6C1]">Refund Policy</Link>
+        {/* FOOTER LINKS */}
+        <div className="text-center mt-10 text-xs text-[#475569] space-x-6">
+          <a href="/legal" className="text-[#1FB6C1] hover:text-[#0B3A63]">Legal</a>
+          <a href="/privacy" className="text-[#1FB6C1] hover:text-[#0B3A63]">Privacy</a>
+          <a href="/refund-policy" className="text-[#1FB6C1] hover:text-[#0B3A63]">Refund Policy</a>
         </div>
+
       </div>
-    </div>
+    </>
   );
 }
