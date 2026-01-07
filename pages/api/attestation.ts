@@ -4,15 +4,7 @@ import puppeteer from "puppeteer-core";
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 import QRCode from "qrcode";
-import { attestationTemplate } from "../../lib/attestationTemplate";
-
-function fillTemplate(template: string, data: Record<string, string>) {
-  let html = template;
-  for (const key in data) {
-    html = html.replace(new RegExp(`{{${key}}}`, "g"), data[key]);
-  }
-  return html;
-}
+import { fillAttestationTemplate } from "../../lib/attestationTemplate";
 
 function computeHash(buffer: Buffer) {
   return crypto.createHash("sha256").update(buffer).digest("hex");
@@ -37,22 +29,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       process.env.NEXT_PUBLIC_BASE_URL ||
       "https://certif-scope.com";
 
-    // FIRST PASS — HTML WITHOUT QR
-    const htmlInitial = fillTemplate(attestationTemplate, {
-      ATTESTATION_ID: attestationId,
-      ISSUE_DATE_UTC: now.toISOString(),
-      COMPANY_NAME: report.companyName || "N/A",
-      BUSINESS_SECTOR: report.sector || "N/A",
-      COUNTRY: "France",
-      ASSESSMENT_PERIOD: "FY2024",
-      SCOPE_1: String(report.scope1 || 0),
-      SCOPE_2: String(report.scope2 || 0),
-      SCOPE_3: String(report.scope3 || 0),
-      TOTAL: String(report.total || 0),
-      METHODOLOGY_VERSION: "v3",
-      GENERATION_TIMESTAMP: now.toISOString(),
-      QR_CODE: "",
-      HASH: ""
+    const s1 = Number(report.scope1 || 0);
+    const s2 = Number(report.scope2 || 0);
+    const s3 = Number(report.scope3 || 0);
+    const total = Number(report.total || 0);
+
+    const pct1 = total > 0 ? ((s1 / total) * 100).toFixed(1) : "0";
+    const pct2 = total > 0 ? ((s2 / total) * 100).toFixed(1) : "0";
+    const pct3 = total > 0 ? ((s3 / total) * 100).toFixed(1) : "0";
+
+    // FIRST PASS — HTML WITHOUT QR/HASH
+    const htmlInitial = fillAttestationTemplate({
+      attestationId,
+      issueDate: now.toISOString(),
+      companyName: report.companyName || "N/A",
+      sector: report.sector || "N/A",
+      country: report.country || "France",
+      period: report.period || "FY2024",
+      scope1: s1,
+      scope2: s2,
+      scope3: s3,
+      total,
+      scope1Percent: pct1,
+      scope2Percent: pct2,
+      scope3Percent: pct3,
+      preparedOn: now.toISOString(),
+      qrCodeUrl: "",
+      hash: ""
     });
 
     const executablePath =
@@ -77,29 +80,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await browser1.close();
 
-    // HASH AFTER FIRST PDF
+    // HASH BASED ON FIRST PDF
     const pdfHash = computeHash(tmpPdfBuffer);
+    const shortHash = pdfHash.substring(0, 8) + "...";
 
-    // QR CODE GENERATION
+    // QR CODE generation
     const verifyUrl = `${baseUrl}/verify?id=${attestationId}&hash=${pdfHash}`;
     const qrDataUrl = await QRCode.toDataURL(verifyUrl);
 
-    // SECOND PASS — FINAL HTML WITH QR + HASH
-    const htmlFinal = fillTemplate(attestationTemplate, {
-      ATTESTATION_ID: attestationId,
-      ISSUE_DATE_UTC: now.toISOString(),
-      COMPANY_NAME: report.companyName || "N/A",
-      BUSINESS_SECTOR: report.sector || "N/A",
-      COUNTRY: "France",
-      ASSESSMENT_PERIOD: "FY2024",
-      SCOPE_1: String(report.scope1 || 0),
-      SCOPE_2: String(report.scope2 || 0),
-      SCOPE_3: String(report.scope3 || 0),
-      TOTAL: String(report.total || 0),
-      METHODOLOGY_VERSION: "v3",
-      GENERATION_TIMESTAMP: now.toISOString(),
-      QR_CODE: qrDataUrl,
-      HASH: pdfHash
+    // FINAL PASS — HTML WITH QR + HASH
+    const htmlFinal = fillAttestationTemplate({
+      attestationId,
+      issueDate: now.toISOString(),
+      companyName: report.companyName || "N/A",
+      sector: report.sector || "N/A",
+      country: report.country || "France",
+      period: report.period || "FY2024",
+      scope1: s1,
+      scope2: s2,
+      scope3: s3,
+      total,
+      scope1Percent: pct1,
+      scope2Percent: pct2,
+      scope3Percent: pct3,
+      preparedOn: now.toISOString(),
+      qrCodeUrl: qrDataUrl,
+      hash: pdfHash
     });
 
     const browser2 = await puppeteer.launch({
@@ -119,7 +125,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await browser2.close();
 
-    // REGISTER IN GITHUB VIA INTERNAL API
+    // OPTIONAL: Register the attestation in storage
     await fetch(`${baseUrl}/api/register-attestation`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -129,6 +135,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       id: attestationId,
       hash: pdfHash,
+      hashShort: shortHash,
       verifyUrl,
       pdfBase64: finalPdfBuffer.toString("base64")
     });
@@ -140,4 +147,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       details: err.message
     });
   }
-}
+        }
