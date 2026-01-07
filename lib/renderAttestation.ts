@@ -1,4 +1,7 @@
-type AttestationData = {
+// ===============================
+// Type complet avec QR_CODE
+// ===============================
+export type AttestationData = {
   COMPANY_NAME: string;
   BUSINESS_SECTOR: string;
   COUNTRY: string;
@@ -13,8 +16,13 @@ type AttestationData = {
   ISSUE_DATE_UTC: string;
   GENERATION_TIMESTAMP: string;
   METHODOLOGY_VERSION: string;
+
+  QR_CODE: string;
 };
 
+// ===============================
+// Fonction de rendu HTML
+// ===============================
 export function renderAttestationHTML(data: AttestationData): string {
   let html = `
 <!DOCTYPE html>
@@ -24,26 +32,39 @@ export function renderAttestationHTML(data: AttestationData): string {
   <title>Carbon Footprint Attestation — Certif-Scope</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
-<body>
-`;
+<body style="font-family: Arial, sans-serif; padding: 20px;">
 
-  // Injection simple et contrôlée
-  for (const [key, value] of Object.entries(data)) {
-    html = html.replaceAll(`{{${key}}}`, value);
-  }
+  <h1>Carbon Footprint Attestation</h1>
 
-  // ⚠️ IMPORTANT
-  // On charge ici le template HTML V3
-  // Tu peux soit :
-  // - le coller directement ici
-  // - soit le charger depuis un fichier plus tard
-
-  html += `
   <p><strong>Company:</strong> {{COMPANY_NAME}}</p>
-  <p><strong>Total emissions:</strong> {{TOTAL}} tCO₂e</p>
+  <p><strong>Business sector:</strong> {{BUSINESS_SECTOR}}</p>
+  <p><strong>Country:</strong> {{COUNTRY}}</p>
+  <p><strong>Assessment period:</strong> {{ASSESSMENT_PERIOD}}</p>
+
+  <h2>Emissions</h2>
+  <p><strong>Scope 1:</strong> {{SCOPE_1}} tCO₂e</p>
+  <p><strong>Scope 2:</strong> {{SCOPE_2}} tCO₂e</p>
+  <p><strong>Scope 3:</strong> {{SCOPE_3}} tCO₂e</p>
+  <p><strong>Total:</strong> {{TOTAL}} tCO₂e</p>
+
+  <h2>Attestation details</h2>
+  <p><strong>Attestation ID:</strong> {{ATTESTATION_ID}}</p>
+  <p><strong>Issue date (UTC):</strong> {{ISSUE_DATE_UTC}}</p>
+  <p><strong>Generated at:</strong> {{GENERATION_TIMESTAMP}}</p>
+  <p><strong>Methodology version:</strong> {{METHODOLOGY_VERSION}}</p>
+
+  <h2>Verification</h2>
+  <p>Scan the QR code below to verify authenticity:</p>
+  <img src="{{QR_CODE}}" alt="Verification QR Code" style="width:180px; height:180px;" />
+
 </body>
 </html>
 `;
+
+  // Injection sécurisée des valeurs
+  for (const [key, value] of Object.entries(data)) {
+    html = html.replaceAll(`{{${key}}}`, value);
+  }
 
   return html;
 }
