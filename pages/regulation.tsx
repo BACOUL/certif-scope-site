@@ -14,9 +14,13 @@ export default function Regulation() {
         </Link>
 
         {/* TITLE */}
-        <h1 className="text-3xl md:text-4xl font-black mb-12 text-[#0B3A63]">
+        <h1 className="text-3xl md:text-4xl font-black mb-4 text-[#0B3A63]">
           Regulatory context for SME carbon footprint reporting
         </h1>
+
+        <p className="text-sm text-slate-600 mb-12">
+          Certif-Scope is a service operated by <strong>TimeProofs</strong>.
+        </p>
 
         <div className="space-y-12 text-[#334155] leading-relaxed">
 
@@ -135,8 +139,20 @@ export default function Regulation() {
             </p>
           </section>
 
+          {/* LEGAL LINKS */}
+          <div className="pt-6 text-sm text-[#475569]">
+            <p>
+              For legal and compliance information, see also:
+            </p>
+            <ul className="list-disc pl-6 mt-2 space-y-1">
+              <li><Link href="/legal" className="text-[#1FB6C1]">Legal Notice</Link></li>
+              <li><Link href="/privacy" className="text-[#1FB6C1]">Privacy Policy</Link></li>
+              <li><Link href="/refund-policy" className="text-[#1FB6C1]">Refund Policy</Link></li>
+            </ul>
+          </div>
+
         </div>
       </div>
     </div>
   );
-}
+          }
