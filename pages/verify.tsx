@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function VerifyPage() {
@@ -8,10 +8,30 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleVerify() {
+  // Auto-fill from URL parameters
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const urlId = params.get("id");
+    const urlHash = params.get("hash");
+
+    if (urlId) setId(urlId);
+    if (urlHash) setHash(urlHash);
+
+    // auto-verify if both present
+    if (urlId && urlHash) {
+      handleVerify(urlId, urlHash);
+    }
+  }, []);
+
+  async function handleVerify(providedId?: string, providedHash?: string) {
     setLoading(true);
     setError("");
     setResult(null);
+
+    const finalId = providedId || id;
+    const finalHash = providedHash || hash;
 
     try {
       const res = await fetch(
@@ -35,8 +55,8 @@ export default function VerifyPage() {
 
       const match = data.attestations.find(
         (item: any) =>
-          item.id.trim() === id.trim() &&
-          item.hash.trim().toLowerCase() === hash.trim().toLowerCase()
+          item.id.trim() === finalId.trim() &&
+          item.hash.trim().toLowerCase() === finalHash.trim().toLowerCase()
       );
 
       setResult(match ? { valid: true, item: match } : { valid: false });
@@ -68,6 +88,7 @@ export default function VerifyPage() {
 
         <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm space-y-6">
 
+          {/* ID Input */}
           <div>
             <label className="text-sm font-semibold text-slate-700">Attestation ID</label>
             <input
@@ -79,6 +100,7 @@ export default function VerifyPage() {
             />
           </div>
 
+          {/* Hash Input */}
           <div>
             <label className="text-sm font-semibold text-slate-700">SHA-256 Hash</label>
             <input
@@ -91,7 +113,7 @@ export default function VerifyPage() {
           </div>
 
           <button
-            onClick={handleVerify}
+            onClick={() => handleVerify()}
             disabled={loading}
             className="w-full bg-[#1FB6C1] hover:bg-[#17A2AC] text-white font-semibold py-3 rounded-lg shadow-md transition text-center"
           >
@@ -99,10 +121,12 @@ export default function VerifyPage() {
           </button>
         </div>
 
+        {/* Error message */}
         {error && (
           <p className="mt-6 text-red-600 font-semibold text-center">{error}</p>
         )}
 
+        {/* Result */}
         {result && (
           <div className="mt-10 p-6 bg-white border border-slate-300 rounded-xl shadow-sm">
             {result.valid ? (
@@ -113,6 +137,12 @@ export default function VerifyPage() {
                 <p className="text-sm text-slate-700">
                   The attestation hash matches the official registry.
                 </p>
+
+                <div className="mt-4 text-sm text-slate-700">
+                  <p><strong>ID:</strong> {id}</p>
+                  <p><strong>Hash:</strong> {hash}</p>
+                  <p><strong>Timestamp:</strong> {result.item.timestamp}</p>
+                </div>
               </>
             ) : (
               <>
@@ -130,4 +160,4 @@ export default function VerifyPage() {
       </div>
     </div>
   );
-                }
+        }
