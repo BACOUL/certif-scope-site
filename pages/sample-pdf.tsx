@@ -39,8 +39,8 @@ export default function SamplePDF() {
           </h2>
 
           <img
-            src="/sample-preview.png"
-            alt="Sample PDF preview"
+            src="/sample-attestation.png"
+            alt="Sample Attestation Preview"
             className="w-full rounded-md border"
           />
 
@@ -51,8 +51,8 @@ export default function SamplePDF() {
 
         {/* DOWNLOAD BUTTON */}
         <a
-          href="/sample-attestation.pdf"
-          download
+          href="/sample-attestation.png"
+          download="sample-attestation.png"
           className="block w-full text-center bg-[#1FB6C1] text-white font-bold py-4 rounded-xl hover:bg-[#17A2AC] transition"
         >
           Download sample PDF
