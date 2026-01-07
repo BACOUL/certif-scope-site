@@ -15,11 +15,9 @@ export default function Success() {
 
   const downloadPDF = async () => {
     if (!report) return;
-
     setLoading(true);
 
-    // Appel à ton backend PDF
-    const res = await fetch("/api/generate-attestation", {
+    const res = await fetch("/api/attestation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(report),
@@ -52,7 +50,9 @@ export default function Success() {
         <p className="font-bold text-[#0B3A63]">{report.companyName}</p>
 
         <p className="mt-4 text-sm text-slate-500">Total footprint</p>
-        <p className="text-3xl font-extrabold text-[#0B3A63]">{report.total} tCO₂e</p>
+        <p className="text-3xl font-extrabold text-[#0B3A63]">
+          {report.total} tCO₂e
+        </p>
       </div>
 
       <button
@@ -68,4 +68,4 @@ export default function Success() {
       </p>
     </div>
   );
-}
+      }
