@@ -29,11 +29,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Missing report data" });
     }
 
-    // 1) Unique ID
     const attestationId = uuidv4();
     const now = new Date();
 
-    // 2) HTML sans QR pour premier PDF
+    const baseUrl =
+      req.headers.origin ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      "https://certif-scope.com";
+
+    // FIRST PASS – HTML WITHOUT QR
     const htmlInitial = fillTemplate(attestationTemplate, {
       ATTESTATION_ID: attestationId,
       ISSUE_DATE_UTC: now.toISOString(),
@@ -47,10 +51,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       TOTAL: String(report.total || 0),
       METHODOLOGY_VERSION: "v3",
       GENERATION_TIMESTAMP: now.toISOString(),
-      QR_CODE: "" // placeholder
+      QR_CODE: "",
+      HASH: ""
     });
 
-    // Chromium path (Vercel compatible)
     const executablePath =
       process.env.NODE_ENV === "development"
         ? undefined
@@ -73,16 +77,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await browser1.close();
 
-    // 3) SHA-256
+    // CALCULATE HASH
     const pdfHash = computeHash(tmpPdfBuffer);
 
-    // 4) URL de vérification (produit)
-    const verifyUrl = `https://certif-scope.com/verify?id=${attestationId}&hash=${pdfHash}`;
-
-    // 5) QR (DATA URL)
+    // QR CODE
+    const verifyUrl = `${baseUrl}/verify?id=${attestationId}&hash=${pdfHash}`;
     const qrDataUrl = await QRCode.toDataURL(verifyUrl);
 
-    // 6) HTML final avec QR
+    // SECOND PASS – HTML WITH QR + HASH
     const htmlFinal = fillTemplate(attestationTemplate, {
       ATTESTATION_ID: attestationId,
       ISSUE_DATE_UTC: now.toISOString(),
@@ -96,10 +98,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       TOTAL: String(report.total || 0),
       METHODOLOGY_VERSION: "v3",
       GENERATION_TIMESTAMP: now.toISOString(),
-      QR_CODE: qrDataUrl
+      QR_CODE: qrDataUrl,
+      HASH: pdfHash
     });
 
-    // 7) Deuxième PDF final
     const browser2 = await puppeteer.launch({
       args: chromium.args,
       executablePath,
@@ -117,14 +119,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await browser2.close();
 
-    // 8) Enregistrement GitHub via endpoint sécurisé
-    await fetch(`${req.headers.origin}/api/register-attestation`, {
+    // REGISTER IN GITHUB
+    await fetch(`${baseUrl}/api/register-attestation`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: attestationId, hash: pdfHash })
     });
 
-    // 9) Réponse finale
     return res.status(200).json({
       id: attestationId,
       hash: pdfHash,
@@ -139,4 +140,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       details: err.message
     });
   }
-      }
+}
