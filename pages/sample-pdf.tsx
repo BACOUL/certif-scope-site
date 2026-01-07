@@ -18,6 +18,10 @@ export default function SamplePDF() {
           Sample Carbon Footprint Attestation
         </h1>
 
+        <p className="text-slate-600 text-sm leading-relaxed mb-2">
+          Certif-Scope is a service operated by <strong>TimeProofs</strong>.
+        </p>
+
         <p className="text-slate-600 text-sm leading-relaxed mb-6">
           Below is a preview of the official attestation generated after payment.
         </p>
@@ -31,7 +35,7 @@ export default function SamplePDF() {
           <li>• SHA-256 verification hash</li>
         </ul>
 
-        {/* PREVIEW = SAME IMAGE AS DOWNLOAD */}
+        {/* PREVIEW */}
         <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm mb-8">
           <h2 className="text-center font-bold text-[#0B3A63] mb-4">
             Visual preview
@@ -48,7 +52,7 @@ export default function SamplePDF() {
           </p>
         </div>
 
-        {/* DOWNLOAD BUTTON → SAME FILE */}
+        {/* DOWNLOAD BUTTON */}
         <a
           href="/sample-attestation.png"
           download="sample-attestation.png"
@@ -57,7 +61,17 @@ export default function SamplePDF() {
           Download sample attestation
         </a>
 
+        {/* LEGAL LINKS */}
+        <div className="mt-10 text-center text-xs text-[#64748B] space-y-1">
+          <p>For legal information:</p>
+          <p>
+            <Link href="/legal" className="text-[#1FB6C1]">Legal Notice</Link> ·{" "}
+            <Link href="/privacy" className="text-[#1FB6C1]">Privacy Policy</Link> ·{" "}
+            <Link href="/refund-policy" className="text-[#1FB6C1]">Refund Policy</Link>
+          </p>
+        </div>
+
       </div>
     </div>
   );
-}
+          }
