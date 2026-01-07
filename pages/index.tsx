@@ -8,6 +8,7 @@ export default function Home() {
   return (
     <div id="top" className="min-h-screen bg-[#F8FAFC] font-sans text-[#1E293B]">
 
+      {/* HEADER */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
@@ -16,6 +17,7 @@ export default function Home() {
             <span className="text-[#1FB6C1]">Scope</span>
           </Link>
 
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             <nav className="flex gap-8 text-xs font-bold uppercase tracking-widest text-[#64748B]">
               <a href="#how-it-works" className="hover:text-[#1FB6C1]">How it works</a>
@@ -35,6 +37,7 @@ export default function Home() {
             </a>
           </div>
 
+          {/* Mobile Menu Button */}
           <button
             className="md:hidden text-[#0B3A63]"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -48,6 +51,7 @@ export default function Home() {
           </button>
         </div>
 
+        {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden bg-white border-t border-slate-200">
             <nav className="flex flex-col px-6 py-6 gap-4 text-sm font-semibold text-[#475569]">
@@ -63,6 +67,7 @@ export default function Home() {
         )}
       </header>
 
+      {/* HERO SECTION */}
       <section className="max-w-5xl mx-auto px-6 py-24 text-center">
         <span className="inline-block mb-6 px-4 py-1 text-xs font-bold uppercase tracking-widest rounded-full bg-[#E6F6F7] text-[#0B3A63]">
           ESG pre-compliance for SMEs
@@ -103,6 +108,7 @@ export default function Home() {
         </p>
       </section>
 
+      {/* WHY 99 SECTION */}
       <section className="max-w-4xl mx-auto px-6 py-12 text-center">
         <h3 className="text-xl font-bold text-[#0B3A63] mb-6">Why €99 ?</h3>
         <div className="text-sm text-[#475569] max-w-2xl mx-auto space-y-2 leading-relaxed">
@@ -117,6 +123,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* TRUST BOXES */}
       <section className="max-w-6xl mx-auto px-6 py-24 grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           ['What this is', 'A standardized methodological carbon footprint attestation using a recognized spend-based method.'],
@@ -130,6 +137,7 @@ export default function Home() {
         ))}
       </section>
 
+      {/* REGULATORY CONTEXT */}
       <section id="regulatory-context" className="bg-white py-20 px-6">
         <div className="max-w-4xl mx-auto text-center mb-14">
           <h2 className="text-2xl md:text-3xl font-black text-[#0B3A63] mb-4">
@@ -164,6 +172,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* HOW IT WORKS */}
       <section id="how-it-works" className="bg-white py-20 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
           {[
@@ -180,6 +189,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* METHODOLOGY */}
       <section id="methodology" className="bg-[#E6F6F7] py-20 px-6">
         <div className="max-w-4xl mx-auto space-y-8 text-[#334155]">
           <h2 className="text-2xl md:text-3xl font-black text-center text-[#0B3A63]">
@@ -198,6 +208,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FORM */}
       <section id="assessment" className="max-w-4xl mx-auto py-24 px-6">
         <div className="text-center mb-6">
           <span className="text-xs font-bold text-[#1FB6C1] uppercase tracking-widest">
@@ -214,6 +225,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ */}
       <section id="faq" className="max-w-4xl mx-auto px-6 pb-24">
         <h2 className="text-2xl md:text-3xl font-black text-center text-[#0B3A63] mb-10">
           FAQ
@@ -236,9 +248,10 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FOOTER */}
       <footer className="bg-[#0B3A63] text-[#CBD5E1] py-12 px-6 text-center">
         <p className="mb-4 text-sm font-medium">
-          © 2026 Certif-Scope — Independent ESG Service
+          © 2026 Certif-Scope — operated by TimeProofs
         </p>
 
         <div className="flex justify-center gap-6 text-xs uppercase tracking-widest font-bold">
@@ -251,4 +264,4 @@ export default function Home() {
 
     </div>
   );
-}
+          }
