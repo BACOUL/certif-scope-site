@@ -21,6 +21,7 @@ export default function AssessmentForm() {
   const [results, setResults] = useState<any>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
 
+  // CALCULATE FOOTPRINT + SAVE REPORT LOCALLY
   const handleCalculate = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -33,19 +34,28 @@ export default function AssessmentForm() {
 
     setResults(calculation);
 
-    // Save in localStorage for success page
-    localStorage.setItem("certif-scope-report", JSON.stringify({
-      companyName: formData.companyName,
-      ...calculation
-    }));
+    // Store ALL inputs + results
+    localStorage.setItem(
+      "certif-scope-report",
+      JSON.stringify({
+        companyName: formData.companyName,
+        sector: formData.sector,
+        revenue: formData.revenue,
+        fuelSpent: formData.fuelSpent,
+        electricitySpent: formData.electricitySpent,
+        ...calculation
+      })
+    );
   };
 
-  // =============================================
-  // STRIPE CHECKOUT — Redirection via session.url
-  // =============================================
+  // STRIPE CHECKOUT
   const handleStripe = async () => {
     const res = await fetch('/api/create-checkout-session', {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        companyName: formData.companyName
+      })
     });
 
     const data = await res.json();
@@ -55,7 +65,7 @@ export default function AssessmentForm() {
     }
   };
 
-  // Scroll auto vers les résultats
+  // Auto-scroll to results
   useEffect(() => {
     if (results && resultsRef.current) {
       resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -129,10 +139,7 @@ export default function AssessmentForm() {
               required
               className="w-full px-4 py-3 rounded-xl border"
               onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  revenue: Number(e.target.value)
-                })
+                setFormData({ ...formData, revenue: Number(e.target.value) })
               }
             />
           </div>
@@ -149,10 +156,7 @@ export default function AssessmentForm() {
                 placeholder="Fuel expenses (€)"
                 className="w-full px-4 py-3 rounded-xl border"
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    fuelSpent: Number(e.target.value)
-                  })
+                  setFormData({ ...formData, fuelSpent: Number(e.target.value) })
                 }
               />
 
@@ -206,7 +210,13 @@ export default function AssessmentForm() {
             </p>
 
             <button
-              onClick={handleStripe}
+              onClick={() => {
+                if (!results) {
+                  alert("Please calculate your footprint first.");
+                  return;
+                }
+                handleStripe();
+              }}
               className="w-full bg-[#1FB6C1] text-white font-bold py-4 rounded-xl"
             >
               Download official attestation (€99)
@@ -216,4 +226,4 @@ export default function AssessmentForm() {
       )}
     </div>
   );
-}
+      }
