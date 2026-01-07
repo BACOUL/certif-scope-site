@@ -1,43 +1,45 @@
 import { useState } from "react";
 
 async function computeHash(file: File): Promise<string> {
-  const arrayBuffer = await file.arrayBuffer();
-  const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
-  const hashArray = Array.from(new Uint8Array(digest));
-  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  const buf = await file.arrayBuffer();
+  const digest = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 async function extractTextFromPDF(file: File): Promise<string> {
-  // Ensure browser-only
   if (typeof window === "undefined") return "";
 
-  // Dynamic import to avoid server-side resolution
-  const pdfjsLib = await import("pdfjs-dist/build/pdf");
-  const pdfjsWorker = await import("pdfjs-dist/build/pdf.worker.entry");
+  const lib = ["pdfjs-dist", "build", "pdf"].join("/");
+  const worker = ["pdfjs-dist", "build", "pdf.worker.entry"].join("/");
+
+  // Dynamic string → Turbopack cannot statically resolve
+  const pdfjsLib: any = await import(/* @vite-ignore */ lib);
+  const pdfjsWorker: any = await import(/* @vite-ignore */ worker);
 
   pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
   const buffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
 
-  let fullText = "";
+  let text = "";
 
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    fullText += content.items.map((item: any) => item.str).join(" ");
+    text += content.items.map((x: any) => x.str).join(" ");
   }
 
-  return fullText;
+  return text;
 }
 
 export default function VerifyPage() {
   const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<null | "valid" | "invalid">(null);
   const [loading, setLoading] = useState(false);
-
+  const [status, setStatus] = useState<null | "valid" | "invalid">(null);
   const [extractedId, setExtractedId] = useState("");
-  const [extractedHash, setExtractedHash] = useState("");
+  const [printedHash, setPrintedHash] = useState("");
   const [computedHash, setComputedHash] = useState("");
 
   const handleVerify = async () => {
@@ -54,13 +56,13 @@ export default function VerifyPage() {
     const idMatch = text.match(/ATTESTATION ID[:\s]+([A-Za-z0-9\-]+)/i);
     const hashMatch = text.match(/SHA-256[:\s]+([a-f0-9]{64})/i);
 
-    const docId = idMatch ? idMatch[1] : "";
-    const docHash = hashMatch ? hashMatch[1] : "";
+    const foundId = idMatch ? idMatch[1] : "";
+    const foundHash = hashMatch ? hashMatch[1] : "";
 
-    setExtractedId(docId);
-    setExtractedHash(docHash);
+    setExtractedId(foundId);
+    setPrintedHash(foundHash);
 
-    if (docHash && docHash.toLowerCase() === realHash.toLowerCase()) {
+    if (foundHash && foundHash.toLowerCase() === realHash.toLowerCase()) {
       setStatus("valid");
     } else {
       setStatus("invalid");
@@ -72,15 +74,12 @@ export default function VerifyPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-6 py-16">
       <div className="max-w-3xl mx-auto">
+
         <h1 className="text-3xl font-black text-[#0B3A63] mb-6">
           Verify Attestation
         </h1>
 
-        <p className="text-sm text-slate-600 mb-8">
-          Upload an attestation PDF to verify authenticity. No data is uploaded — verification runs locally.
-        </p>
-
-        <div className="bg-white border border-slate-200 p-8 rounded-xl shadow-sm space-y-6">
+        <div className="bg-white border p-8 rounded-xl shadow-sm space-y-6">
           <input
             type="file"
             accept="application/pdf"
@@ -98,20 +97,25 @@ export default function VerifyPage() {
         </div>
 
         {status && (
-          <div className="mt-10 bg-white border p-6 rounded-xl">
+          <div className="mt-10 bg-white border p-6 rounded-xl shadow-sm">
             {status === "valid" ? (
-              <p className="text-green-600 font-bold text-xl mb-4">✔ VALID — Authentic</p>
+              <p className="text-green-600 font-bold text-xl mb-2">
+                ✔ VALID — Authentic
+              </p>
             ) : (
-              <p className="text-red-600 font-bold text-xl mb-4">✖ INVALID — Modified</p>
+              <p className="text-red-600 font-bold text-xl mb-2">
+                ✖ INVALID — Modified
+              </p>
             )}
 
-            <div className="text-sm text-slate-700 space-y-2">
+            <div className="text-sm text-slate-700 mt-4 space-y-2">
               <p><strong>Extracted ID:</strong> {extractedId || "Not found"}</p>
-              <p><strong>Hash printed:</strong> {extractedHash || "Not found"}</p>
-              <p><strong>Hash computed:</strong> {computedHash}</p>
+              <p><strong>Printed hash:</strong> {printedHash || "Not found"}</p>
+              <p><strong>Computed hash:</strong> {computedHash}</p>
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
