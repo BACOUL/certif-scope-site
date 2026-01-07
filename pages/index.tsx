@@ -24,6 +24,7 @@ export default function Home() {
               <a href="#regulatory-context" className="hover:text-[#1FB6C1] transition-colors">CSRD Context</a>
               <a href="#methodology" className="hover:text-[#1FB6C1] transition-colors">Methodology</a>
               <a href="#faq" className="hover:text-[#1FB6C1] transition-colors">FAQ</a>
+              <Link href="/refund-policy" className="hover:text-[#1FB6C1]">Refund Policy</Link>
               <Link href="/verify" className="text-[#1FB6C1] hover:text-[#17A2AC]">Verify</Link>
             </nav>
 
@@ -57,6 +58,7 @@ export default function Home() {
               <a href="#methodology" onClick={() => setMenuOpen(false)}>Methodology</a>
               <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
               <Link href="/legal" onClick={() => setMenuOpen(false)}>Legal</Link>
+              <Link href="/refund-policy" onClick={() => setMenuOpen(false)}>Refund Policy</Link>
               <Link href="/verify" onClick={() => setMenuOpen(false)}>Verify</Link>
             </nav>
           </div>
@@ -264,4 +266,4 @@ export default function Home() {
 
     </div>
   );
-              }
+      }
