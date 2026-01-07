@@ -16,8 +16,6 @@ export const attestationTemplate = `
       --bg-soft: #F8FAFC;
     }
 
-    * { box-sizing: border-box; }
-
     body {
       margin: 0;
       padding: 40px;
@@ -28,42 +26,36 @@ export const attestationTemplate = `
       line-height: 1.6;
     }
 
-    h1, h2, h3 {
-      color: var(--blue-dark);
-      margin: 0 0 12px 0;
-      line-height: 1.3;
-    }
-
+    h1, h2, h3 { color: var(--blue-dark); margin: 0 0 12px 0; }
     h1 { font-size: 26px; }
     h2 { font-size: 18px; margin-top: 36px; }
-    h3 { font-size: 15px; }
-
-    p { margin: 0 0 10px 0; }
-
-    .muted {
-      color: var(--text-muted);
-      font-size: 13px;
-    }
 
     .header {
       border-bottom: 2px solid var(--border);
       padding-bottom: 20px;
       margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
     }
 
     .brand {
       font-size: 20px;
       font-weight: 800;
-      letter-spacing: -0.5px;
     }
 
-    .brand span:first-child { color: var(--blue-dark); }
-    .brand span:last-child { color: var(--blue-light); }
-
     .meta {
-      margin-top: 8px;
       font-size: 12px;
       color: var(--text-muted);
+    }
+
+    .qr-box {
+      text-align: right;
+    }
+
+    .qr-box img {
+      width: 120px;
+      height: 120px;
     }
 
     .section { margin-bottom: 28px; }
@@ -94,8 +86,6 @@ export const attestationTemplate = `
       font-weight: 600;
     }
 
-    .total { font-weight: 700; }
-
     .footer {
       margin-top: 48px;
       padding-top: 16px;
@@ -108,14 +98,21 @@ export const attestationTemplate = `
 
 <body>
 
-  <!-- HEADER -->
+  <!-- HEADER WITH QR -->
   <div class="header">
-    <div class="brand">
-      <span>Certif-</span><span>Scope</span>
+    <div>
+      <div class="brand">
+        <span style="color:#0B3A63;">Certif-</span><span style="color:#1FB6C1;">Scope</span>
+      </div>
+      <div class="meta">
+        Carbon Footprint Attestation (Methodological) · Version v3<br />
+        Document ID: {{ATTESTATION_ID}} · Issued {{ISSUE_DATE_UTC}} (UTC)
+      </div>
     </div>
-    <div class="meta">
-      Carbon Footprint Attestation (Methodological) · Version v3<br />
-      Document ID: {{ATTESTATION_ID}} · Issued {{ISSUE_DATE_UTC}} (UTC)
+
+    <div class="qr-box">
+      <img src="{{QR_CODE}}" alt="QR Code Verification" />
+      <div class="meta">Scan to verify</div>
     </div>
   </div>
 
@@ -133,8 +130,7 @@ export const attestationTemplate = `
     <h2>2. Executive summary</h2>
     <p>
       This document provides a <strong>methodological carbon footprint attestation</strong>
-      based on standardized estimation methods. It is intended to support ESG questionnaires,
-      partner requests, banking due diligence and pre-compliance reporting.
+      based on standardized estimation methods.
     </p>
 
     <div class="box">
@@ -181,14 +177,7 @@ export const attestationTemplate = `
   <div class="section">
     <h2>4. Methodology</h2>
     <p>
-      This assessment applies a <strong>spend-based estimation approach</strong>
-      inspired by the <strong>GHG Protocol Corporate Standard</strong>.
-      Emission factors are derived from the <strong>ADEME Base Empreinte</strong>
-      (latest available version at the time of calculation).
-    </p>
-    <p class="muted">
-      Results are indicative and intended for pre-compliance and value-chain reporting purposes only.
-      The assessment covers Scope 1, Scope 2 and Scope 3 emissions at a screening level.
+      This assessment applies a <strong>spend-based estimation approach</strong> inspired by the GHG Protocol.
     </p>
   </div>
 
@@ -196,36 +185,23 @@ export const attestationTemplate = `
   <div class="section">
     <h2>5. Regulatory context</h2>
     <p>
-      This attestation is designed to support <strong>indirect ESG obligations</strong>
-      arising from the European Union <strong>CSRD</strong> framework,
-      notably Scope 3 value-chain reporting requests addressed to SMEs by regulated entities.
-    </p>
-    <p class="muted">
-      This attestation may be used by regulated entities to support their CSRD Scope 3 disclosures.
-      It does not constitute a statutory CSRD filing.
+      This attestation supports ESG and CSRD Scope 3 data requests from banks and partners.
     </p>
   </div>
 
-  <!-- 6. DATA PROCESSING & CONFIDENTIALITY -->
+  <!-- 6. DATA PROCESSING -->
   <div class="section">
     <h2>6. Data processing & confidentiality</h2>
     <p>
-      All calculations are performed <strong>locally in the user’s browser</strong>.
-      No raw financial, accounting or operational data is transmitted to or stored on Certif-Scope servers.
+      All calculations are performed <strong>locally</strong> in the user’s device. No raw data is stored.
     </p>
   </div>
 
-  <!-- 7. LEGAL NOTICE & LIMITATIONS -->
+  <!-- 7. LEGAL -->
   <div class="section">
     <h2>7. Legal notice & limitations</h2>
     <p>
-      This document is a <strong>methodological carbon footprint attestation</strong>.
-      It does not constitute a certified audit, a regulatory approval,
-      or a legally binding declaration.
-    </p>
-    <p class="muted">
-      Certif-Scope does not act as a certification body, assurance provider,
-      or regulated audit entity.
+      This is a <strong>methodological attestation</strong>, not a certified audit nor a CSRD filing.
     </p>
   </div>
 
