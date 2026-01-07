@@ -27,14 +27,14 @@ export default function Legal() {
               1. Website Editor
             </h2>
             <p className="text-sm text-slate-600 leading-relaxed">
-              This website is published by:
+              Certif-Scope is a service operated by:
               <br /><br />
               <strong>TimeProofs — Jeason Alexandre Bacoul</strong><br />
               Entrepreneur individuel<br />
               SIREN: 999356439<br />
               Address: 3 rue de l’Église de Louppy, 55000 Les Hauts-de-Chée, France
               <br /><br />
-              Contact email: <strong>contact@timeproofs.io</strong>
+              Contact email: <strong>support@certif-scope.com</strong>
             </p>
           </section>
 
@@ -108,9 +108,9 @@ export default function Legal() {
               6. Contact
             </h2>
             <p className="text-sm text-slate-600 leading-relaxed">
-              For any legal or administrative inquiries, contact:
+              For legal or administrative inquiries, contact:
               <br />
-              <strong>contact@timeproofs.io</strong>
+              <strong>support@certif-scope.com</strong>
             </p>
           </section>
 
@@ -123,4 +123,4 @@ export default function Legal() {
       </div>
     </div>
   );
-          }
+      }
