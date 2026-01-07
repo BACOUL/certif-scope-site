@@ -43,16 +43,31 @@ export const attestationTemplate = `
 
     h1, h2, h3 { color: var(--blue-dark); margin: 0 0 12px 0; }
     h1 { font-size: 26px; }
-    h2 { font-size: 18px; margin-top: 36px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+    h2 { font-size: 18px; margin-top: 40px; padding-bottom: 6px; border-bottom: 2px solid #dbe7f4; }
     h3 { font-size: 15px; margin-top: 24px; font-weight: 600; color: var(--text-main); }
 
+    /* ===== PREMIUM LAYOUT UPGRADE ===== */
+
+    /* 1. document-header compact premium */
     .header {
-      border-bottom: 2px solid var(--border);
-      padding-bottom: 5px;
+      padding-bottom: 15px;
+      padding-top: 10px;
       margin-bottom: 15px;
+      border-bottom: 2px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+    }
+
+    /* 2. subtle line under brand */
+    .brand::after {
+      content: "";
+      display: block;
+      width: 60%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--blue-dark), var(--blue-light));
+      margin-top: 6px;
+      border-radius: 3px;
     }
 
     .brand {
@@ -69,35 +84,49 @@ export const attestationTemplate = `
     .qr-box {
       text-align: right;
     }
-    .qr-box img { width: 110px; height: 110px; }
+    .qr-box img {
+      width: 120px;
+      height: 120px;
+      padding: 6px;
+      border: 1px solid #d8e2ef;
+      border-radius: 8px;
+      background: white;
+    }
 
     .section { margin-bottom: 18px; margin-top: 20px; page-break-inside: avoid; }
 
+    /* 3. premium result card */
     .box {
-      background: var(--bg-soft);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #d8e2ef;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
       padding: 20px;
       margin-top: 12px;
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       margin-top: 14px;
       font-size: 13px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
 
     th, td {
-      border: 1px solid var(--border);
       padding: 6px 8px;
       text-align: left;
     }
 
     th {
-      background: #F1F5F9;
+      background: linear-gradient(90deg, #e8f1f7, #f7fafc);
       font-weight: 600;
       color: var(--blue-dark);
+    }
+
+    td {
+      border: 1px solid #e5edf4;
     }
 
     .chart-row {
@@ -122,6 +151,7 @@ export const attestationTemplate = `
     .chart-bar-fill {
       height: 100%;
       border-radius: 4px;
+      transition: width 0.4s ease-out;
     }
     .chart-value {
       width: 80px;
@@ -132,21 +162,22 @@ export const attestationTemplate = `
 
     .footer {
       margin-top: 40px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
+      padding-top: 25px;
+      border-top: 2px solid #dce6f2;
       font-size: 10px;
       color: var(--text-muted);
     }
     
     .hash-block {
       font-family: monospace;
-      font-size: 9px;
+      font-size: 10px;
       background: #F1F5F9;
       padding: 8px;
       word-break: break-all;
       border-radius: 4px;
       margin-top: 8px;
-      color: #64748B;
+      color: #334155;
+      border-left: 3px solid var(--blue-dark);
     }
 
     .page-num {
@@ -167,6 +198,8 @@ export const attestationTemplate = `
       body { background: white; color: #000; }
       .qr-box img { page-break-inside: avoid; }
     }
+
+    /* ===== END PREMIUM UPGRADE ===== */
   </style>
 </head>
 
@@ -227,6 +260,15 @@ export const attestationTemplate = `
            <div style="font-weight:600;">{{SCOPE_3}} t</div>
         </div>
       </div>
+    </div>
+
+    <div class="box" style="margin-top:20px; padding:16px;">
+      <h3 style="margin:0 0 10px 0; font-size:15px;">Key Highlights</h3>
+      <ul style="margin:0; padding-left:18px; font-size:12px; color:var(--text-muted);">
+        <li>Total footprint: <strong>{{TOTAL}} tCO₂e</strong></li>
+        <li>Scope 3 dominates at <strong>{{SCOPE_3_PERCENT}}%</strong></li>
+        <li>Emission factors updated — Methodology v{{METHODOLOGY_VERSION}}</li>
+      </ul>
     </div>
     
     <div class="chart-section" style="margin-top:25px;">
@@ -420,7 +462,7 @@ export function fillAttestationTemplate(data) {
       new Date().toISOString().split("T")[0],
     PREPARED_ON: data.preparedOn ? String(data.preparedOn).split("T")[0] : (data.issueDate ? String(data.issueDate).split("T")[0] : new Date().toISOString().split("T")[0]),
     QR_CODE: data.qrCodeUrl
-      ? `<img src="${data.qrCodeUrl}" width="110" height="110" alt="QR Code Verification" />`
+      ? `<img src="${data.qrCodeUrl}" width="120" height="120" alt="QR Code Verification" />`
       : "",
     HASH: fullHash,
     HASH_SHORT: shortHash
