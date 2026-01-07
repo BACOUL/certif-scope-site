@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2025-12-15.clover',
+  apiVersion: '2023-10-16', // version stable actuelle
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             product_data: {
               name: 'Carbon Footprint Official Attestation',
             },
-            unit_amount: 9900, 
+            unit_amount: 9900, // 99€
           },
           quantity: 1,
         },
@@ -30,8 +30,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       cancel_url: `${req.headers.origin}/cancel`,
     });
 
-    return res.status(200).json({ id: session.id });
+    return res.status(200).json({ url: session.url });
   } catch (err) {
+    console.error('[STRIPE_ERROR]', err);
     return res.status(500).json({ error: 'Stripe error', details: err });
   }
 }
