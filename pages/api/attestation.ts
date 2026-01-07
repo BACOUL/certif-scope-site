@@ -21,20 +21,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Missing report data" });
     }
 
+    // Generate unique ID + timestamps
     const attestationId = uuidv4();
     const now = new Date();
 
+    // Determine base URL (Prod/Vercel/Local)
     const baseUrl =
       req.headers.origin ||
       process.env.NEXT_PUBLIC_BASE_URL ||
       "https://certif-scope.com";
 
+    // Normalize inputs
     const s1 = Number(report.scope1 || 0);
     const s2 = Number(report.scope2 || 0);
     const s3 = Number(report.scope3 || 0);
     const total = Number(report.total || 0);
 
-    // FIRST PASS — HTML WITHOUT QR/HASH
+    // FIRST PASS — HTML WITHOUT QR/HASH (required for canonical hash)
     const htmlInitial = fillAttestationTemplate({
       attestationId,
       issueDate: now.toISOString(),
@@ -51,6 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       hash: ""
     });
 
+    // Launch Chromium
     const executablePath =
       process.env.NODE_ENV === "development"
         ? undefined
@@ -65,6 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const page1 = await browser1.newPage();
     await page1.setContent(htmlInitial, { waitUntil: "networkidle0" });
 
+    // Generate temporary PDF for hashing
     const tmpPdfBuffer = await page1.pdf({
       format: "a4",
       printBackground: true,
@@ -73,15 +78,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await browser1.close();
 
-    // HASH BASED ON FIRST PDF
+    // SHA-256 hash from raw PDF
     const pdfHash = computeHash(tmpPdfBuffer);
     const shortHash = pdfHash.substring(0, 8);
 
-    // QR CODE generation
+    // QR Code (final verify link)
     const verifyUrl = `${baseUrl}/verify?id=${attestationId}&hash=${pdfHash}`;
     const qrDataUrl = await QRCode.toDataURL(verifyUrl);
 
-    // FINAL PASS — HTML WITH QR + HASH
+    // FINAL PASS — HTML WITH QR + HASH included
     const htmlFinal = fillAttestationTemplate({
       attestationId,
       issueDate: now.toISOString(),
@@ -107,6 +112,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const page2 = await browser2.newPage();
     await page2.setContent(htmlFinal, { waitUntil: "networkidle0" });
 
+    // Final PDF generation (premium layout included)
     const finalPdfBuffer = await page2.pdf({
       format: "a4",
       printBackground: true,
@@ -115,7 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await browser2.close();
 
-    // SAVE ID + HASH in registry
+    // Save to registry (ID + hash)
     await fetch(`${baseUrl}/api/register-attestation`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -137,4 +143,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       details: err.message
     });
   }
-      }
+}
