@@ -15,9 +15,13 @@ export default function RefundPolicy() {
         </Link>
 
         {/* TITLE */}
-        <h1 className="text-3xl md:text-4xl font-black mb-12 text-[#0B3A63]">
+        <h1 className="text-3xl md:text-4xl font-black mb-4 text-[#0B3A63]">
           Refund Policy
         </h1>
+
+        <p className="text-sm text-slate-600 mb-10">
+          Certif-Scope is a service operated by <strong>TimeProofs</strong>.
+        </p>
 
         <div className="space-y-10">
 
@@ -107,4 +111,4 @@ export default function RefundPolicy() {
       </div>
     </div>
   );
-}
+          }
