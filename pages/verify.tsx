@@ -15,28 +15,33 @@ export default function VerifyPage() {
 
     try {
       const res = await fetch(
-        "https://raw.githubusercontent.com/BACOUL/certif-scope/main/attestations.json"
+        "https://raw.githubusercontent.com/BACOUL/certif-scope/main/attestations.json",
+        { cache: "no-store" }
       );
 
       if (!res.ok) {
-        setError("Unable to fetch verification database.");
+        setError("Unable to fetch verification registry.");
         setLoading(false);
         return;
       }
 
       const data = await res.json();
+
+      if (!data.attestations || !Array.isArray(data.attestations)) {
+        setError("Invalid registry format.");
+        setLoading(false);
+        return;
+      }
+
       const match = data.attestations.find(
         (item: any) =>
-          item.id.trim() === id.trim() && item.hash.trim() === hash.trim()
+          item.id.trim() === id.trim() &&
+          item.hash.trim().toLowerCase() === hash.trim().toLowerCase()
       );
 
-      if (match) {
-        setResult({ valid: true, item: match });
-      } else {
-        setResult({ valid: false });
-      }
+      setResult(match ? { valid: true, item: match } : { valid: false });
     } catch (err) {
-      setError("Verification failed. Please try again later.");
+      setError("Verification failed. Try again later.");
     }
 
     setLoading(false);
@@ -106,7 +111,7 @@ export default function VerifyPage() {
                   ✔ VALID — Attestation Authentic
                 </p>
                 <p className="text-sm text-slate-700">
-                  Integrity verified. The attestation hash matches the official registry.
+                  The attestation hash matches the official registry.
                 </p>
               </>
             ) : (
@@ -125,4 +130,4 @@ export default function VerifyPage() {
       </div>
     </div>
   );
-}
+                }
