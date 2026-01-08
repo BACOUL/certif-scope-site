@@ -22,6 +22,7 @@ export default function Privacy() {
         />
         <meta property="og:url" content="https://certif-scope.com/privacy" />
         <meta property="og:type" content="article" />
+        <meta property="og:image" content="https://certif-scope.com/og-image.png" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -30,6 +31,7 @@ export default function Privacy() {
           name="twitter:description"
           content="Certif-Scope does not collect or store user data. All calculations run locally in your browser."
         />
+        <meta name="twitter:image" content="https://certif-scope.com/og-image.png" />
 
         {/* Structured Data */}
         <script
@@ -123,7 +125,7 @@ export default function Privacy() {
               <li>revenue or expenditure inputs</li>
               <li>electricity or fuel values</li>
               <li>calculated emissions (Scopes 1, 2, 3)</li>
-              <li>PDF data or document content</li>
+              <li>pdf data or document content</li>
               <li>IP addresses or device identifiers</li>
             </ul>
           </section>
@@ -141,6 +143,12 @@ export default function Privacy() {
 
             <p className="text-sm text-[#475569] mt-3">
               No personal or business data is linked to this registry entry.
+            </p>
+
+            {/* REQUIRED GDPR CLARIFICATION ADDED */}
+            <p className="text-sm text-[#475569] mt-3">
+              These technical elements are kept indefinitely for verification purposes unless a removal request is submitted by the user.
+              This storage is justified under GDPR Art. 6(1)(c) and Art. 6(1)(f), as it is required to ensure attestation authenticity.
             </p>
           </section>
 
@@ -221,4 +229,4 @@ export default function Privacy() {
       </div>
     </>
   );
-}
+            }
