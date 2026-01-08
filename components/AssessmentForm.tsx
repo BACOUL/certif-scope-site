@@ -1,14 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function AssessmentForm() {
   const [year, setYear] = useState(new Date().getFullYear());
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
-
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-
+  const [sector, setSector] = useState("services");
   const [data, setData] = useState({
-    sector: "services",
     fuel: "",
     electricity: "",
     gas: "",
@@ -20,280 +15,270 @@ export default function AssessmentForm() {
     logistics: ""
   });
 
-  const change = (field: string, value: string) =>
-    setData({ ...data, [field]: value });
+  const [result, setResult] = useState<any>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  const factors = {
+    fuel: 2.68,
+    electricity: 0.059,
+    gas: 0.204,
+    train: 0.012,
+    flight: 0.255,
+    hotel: 6.5,
+    it: 0.25,
+    services: 0.18,
+    logistics: 0.7
+  };
+
+  const handleChange = (field: string, value: string) => {
+    setData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const calculate = () => {
-    const f = (n: string, factor: number) => (parseFloat(n) || 0) * factor;
+    const scope1 =
+      (parseFloat(data.fuel) || 0) * factors.fuel +
+      (parseFloat(data.gas) || 0) * factors.gas;
 
-    const scope1 = f(data.fuel, 2.68);
-    const scope2 = f(data.electricity, 0.059) + f(data.gas, 0.204);
+    const scope2 =
+      (parseFloat(data.electricity) || 0) * factors.electricity;
+
     const scope3 =
-      f(data.train, 0.012) +
-      f(data.flight, 0.255) +
-      f(data.hotel, 6.5) +
-      f(data.it, 0.25) +
-      f(data.services, 0.18) +
-      f(data.logistics, 0.7);
+      (parseFloat(data.train) || 0) * factors.train +
+      (parseFloat(data.flight) || 0) * factors.flight +
+      (parseFloat(data.hotel) || 0) * factors.hotel +
+      (parseFloat(data.it) || 0) * factors.it +
+      (parseFloat(data.services) || 0) * factors.services +
+      (parseFloat(data.logistics) || 0) * factors.logistics;
 
-    const output = {
+    const total = scope1 + scope2 + scope3;
+
+    setResult({
       year,
       scope1: Math.round(scope1),
       scope2: Math.round(scope2),
       scope3: Math.round(scope3),
-      total: Math.round(scope1 + scope2 + scope3)
-    };
-
-    setResult(output);
-
-    setTimeout(() => {
-      scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 200);
-  };
-
-  const generateAttestation = async () => {
-    if (!result) return;
-
-    setLoading(true);
-    const res = await fetch("/api/generate-attestation", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        year: result.year,
-        sector: data.sector,
-        fuelLiters: data.fuel,
-        electricityKwh: data.electricity,
-        freightKm: data.logistics,
-        businessTravelKm: data.flight,
-        purchasedGoodsEuro: data.services,
-        companyName: "Your Company",
-        country: "Unknown"
-      })
+      total: Math.round(total)
     });
 
-    const out = await res.json();
-    setLoading(false);
+    setTimeout(() => {
+      if (resultRef.current) {
+        const y = resultRef.current.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 150);
+  };
 
-    if (!out?.html) return alert("Unable to generate the attestation.");
-
-    const blob = new Blob([out.html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
+  const barWidth = (value: number, total: number) => {
+    if (!total || value <= 0) return "0%";
+    return `${Math.min((value / total) * 100, 100)}%`;
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
 
-      {/* HEADER SECTION */}
-      <div className="bg-white shadow-lg rounded-xl p-6 border border-slate-200">
-        <h2 className="text-3xl font-bold text-[#0B3A63]">
-          Carbon Assessment (SME)
-        </h2>
-        <p className="text-slate-600 mt-2">
-          Provide annual values for your organisation. Only fill the fields you know.
-          The calculator uses standardised factors aligned with the GHG Protocol.
+      <div>
+        <h2 className="text-3xl font-bold text-[#0B3A63] mb-3">Carbon Assessment — SME</h2>
+        <p className="text-sm text-[#475569] max-w-2xl">
+          Enter annual data below. This simplified assessment follows GHG Protocol screening methodology.
+          Only available data is required. Leave blank if unknown.
         </p>
       </div>
 
-      {/* REPORTING YEAR & SECTOR */}
-      <div className="bg-white shadow rounded-xl p-6 border border-slate-200 space-y-6">
-        <h3 className="text-xl font-semibold text-[#0B3A63]">General Information</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <div>
+          <label className="font-semibold text-sm">Reporting Year</label>
+          <input
+            type="number"
+            value={year}
+            onChange={(e) => setYear(parseInt(e.target.value))}
+            className="w-full mt-1 p-3 border rounded"
+          />
+          <p className="text-xs text-slate-500 mt-1">Year for which emissions are estimated.</p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="font-semibold">Reporting Year</label>
-            <input
-              type="number"
-              value={year}
-              onChange={(e) => setYear(parseInt(e.target.value))}
-              className="w-full p-3 border rounded-lg mt-1"
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              Typically the previous calendar year.
-            </p>
-          </div>
+        <div>
+          <label className="font-semibold text-sm">Business Sector</label>
+          <select
+            value={sector}
+            onChange={(e) => setSector(e.target.value)}
+            className="w-full mt-1 p-3 border rounded"
+          >
+            <option value="services">Services</option>
+            <option value="retail">Retail</option>
+            <option value="manufacturing">Manufacturing</option>
+            <option value="construction">Construction</option>
+            <option value="transport">Transport</option>
+          </select>
+          <p className="text-xs text-slate-500 mt-1">Used to contextualize Scope 3 intensity.</p>
+        </div>
 
-          <div>
-            <label className="font-semibold">Business Sector</label>
-            <select
-              value={data.sector}
-              onChange={(e) => change("sector", e.target.value)}
-              className="w-full p-3 border rounded-lg mt-1"
-            >
-              <option value="services">Services</option>
-              <option value="retail">Retail</option>
-              <option value="construction">Construction</option>
-              <option value="manufacturing">Manufacturing</option>
-              <option value="transport">Transport</option>
-            </select>
-            <p className="text-xs text-slate-500 mt-1">
-              Select the closest match to your activity.
-            </p>
-          </div>
+        <div>
+          <label className="font-semibold text-sm">Fuel Consumption (liters)</label>
+          <input
+            type="number"
+            value={data.fuel}
+            onChange={(e) => handleChange("fuel", e.target.value)}
+            className="w-full mt-1 p-3 border rounded"
+          />
+          <p className="text-xs text-slate-500 mt-1">Company fleet and internal vehicles.</p>
+        </div>
+
+        <div>
+          <label className="font-semibold text-sm">Electricity (kWh)</label>
+          <input
+            type="number"
+            value={data.electricity}
+            onChange={(e) => handleChange("electricity", e.target.value)}
+            className="w-full mt-1 p-3 border rounded"
+          />
+          <p className="text-xs text-slate-500 mt-1">Office or workshop electricity consumption.</p>
+        </div>
+
+        <div>
+          <label className="font-semibold text-sm">Natural Gas (kWh)</label>
+          <input
+            type="number"
+            value={data.gas}
+            onChange={(e) => handleChange("gas", e.target.value)}
+            className="w-full mt-1 p-3 border rounded"
+          />
+          <p className="text-xs text-slate-500 mt-1">Heating fuel for buildings.</p>
+        </div>
+
+        <div>
+          <label className="font-semibold text-sm">Train Travel (km)</label>
+          <input
+            type="number"
+            value={data.train}
+            onChange={(e) => handleChange("train", e.target.value)}
+            className="w-full mt-1 p-3 border rounded"
+          />
+          <p className="text-xs text-slate-500 mt-1">Professional travel by train within EU.</p>
+        </div>
+
+        <div>
+          <label className="font-semibold text-sm">Flight Travel (km)</label>
+          <input
+            type="number"
+            value={data.flight}
+            onChange={(e) => handleChange("flight", e.target.value)}
+            className="w-full mt-1 p-3 border rounded"
+          />
+          <p className="text-xs text-slate-500 mt-1">Short/medium/long haul business flights.</p>
+        </div>
+
+        <div>
+          <label className="font-semibold text-sm">Hotel Nights</label>
+          <input
+            type="number"
+            value={data.hotel}
+            onChange={(e) => handleChange("hotel", e.target.value)}
+            className="w-full mt-1 p-3 border rounded"
+          />
+          <p className="text-xs text-slate-500 mt-1">Total nights spent during business trips.</p>
+        </div>
+
+        <div>
+          <label className="font-semibold text-sm">IT Equipment (€)</label>
+          <input
+            type="number"
+            value={data.it}
+            onChange={(e) => handleChange("it", e.target.value)}
+            className="w-full mt-1 p-3 border rounded"
+          />
+          <p className="text-xs text-slate-500 mt-1">Computers, servers, networking.</p>
+        </div>
+
+        <div>
+          <label className="font-semibold text-sm">External Services (€)</label>
+          <input
+            type="number"
+            value={data.services}
+            onChange={(e) => handleChange("services", e.target.value)}
+            className="w-full mt-1 p-3 border rounded"
+          />
+          <p className="text-xs text-slate-500 mt-1">Consultants, subcontractors, agencies.</p>
+        </div>
+
+        <div>
+          <label className="font-semibold text-sm">Goods Logistics (€)</label>
+          <input
+            type="number"
+            value={data.logistics}
+            onChange={(e) => handleChange("logistics", e.target.value)}
+            className="w-full mt-1 p-3 border rounded"
+          />
+          <p className="text-xs text-slate-500 mt-1">Freight transport, parcel shipments.</p>
         </div>
       </div>
 
-      {/* ENERGY SECTION */}
-      <div className="bg-white shadow rounded-xl p-6 border border-slate-200 space-y-6">
-        <h3 className="text-xl font-semibold text-[#0B3A63]">Energy Consumption</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label className="font-semibold">Fuel used (litres)</label>
-            <input
-              type="number"
-              value={data.fuel}
-              onChange={(e) => change("fuel", e.target.value)}
-              className="w-full p-3 border rounded-lg mt-1"
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              Diesel + gasoline used internally (fleet / generators).
-            </p>
-          </div>
-
-          <div>
-            <label className="font-semibold">Electricity (kWh)</label>
-            <input
-              type="number"
-              value={data.electricity}
-              onChange={(e) => change("electricity", e.target.value)}
-              className="w-full p-3 border rounded-lg mt-1"
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              Annual electricity consumption from bills.
-            </p>
-          </div>
-
-          <div>
-            <label className="font-semibold">Natural Gas (kWh)</label>
-            <input
-              type="number"
-              value={data.gas}
-              onChange={(e) => change("gas", e.target.value)}
-              className="w-full p-3 border rounded-lg mt-1"
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              Heating fuel consumption from invoices.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* MOBILITY SECTION */}
-      <div className="bg-white shadow rounded-xl p-6 border border-slate-200 space-y-6">
-        <h3 className="text-xl font-semibold text-[#0B3A63]">Business Travel</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label className="font-semibold">Train Travel (km)</label>
-            <input
-              type="number"
-              value={data.train}
-              onChange={(e) => change("train", e.target.value)}
-              className="w-full p-3 border rounded-lg mt-1"
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold">Flight Travel (km)</label>
-            <input
-              type="number"
-              value={data.flight}
-              onChange={(e) => change("flight", e.target.value)}
-              className="w-full p-3 border rounded-lg mt-1"
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold">Hotel nights</label>
-            <input
-              type="number"
-              value={data.hotel}
-              onChange={(e) => change("hotel", e.target.value)}
-              className="w-full p-3 border rounded-lg mt-1"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* PURCHASED GOODS SECTION */}
-      <div className="bg-white shadow rounded-xl p-6 border border-slate-200 space-y-6">
-        <h3 className="text-xl font-semibold text-[#0B3A63]">Purchased Goods & Services</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label className="font-semibold">IT equipment (€)</label>
-            <input
-              type="number"
-              value={data.it}
-              onChange={(e) => change("it", e.target.value)}
-              className="w-full p-3 border rounded-lg mt-1"
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold">External Services (€)</label>
-            <input
-              type="number"
-              value={data.services}
-              onChange={(e) => change("services", e.target.value)}
-              className="w-full p-3 border rounded-lg mt-1"
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold">Goods Logistics (€)</label>
-            <input
-              type="number"
-              value={data.logistics}
-              onChange={(e) => change("logistics", e.target.value)}
-              className="w-full p-3 border rounded-lg mt-1"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* CALCULATE BUTTON */}
       <button
         onClick={calculate}
-        className="w-full bg-[#1FB6C1] text-white py-4 rounded-xl font-bold shadow-lg hover:brightness-110 active:scale-[0.98] transition"
+        className="w-full bg-[#1FB6C1] text-white py-4 rounded-lg font-bold text-lg shadow-md"
       >
         Calculate Emissions
       </button>
 
-      {/* RESULTS */}
       {result && (
-        <div ref={scrollRef} className="bg-[#0B3A63] text-white p-8 rounded-xl shadow-xl space-y-3">
+        <div ref={resultRef} className="mt-12 bg-[#0B3A63] text-white p-10 rounded-xl shadow-xl space-y-8">
 
-          <h3 className="text-2xl font-bold">Results — {result.year}</h3>
+          <h3 className="text-2xl font-bold">Results — Year {result.year}</h3>
 
-          <div className="text-lg">Total CO₂e: <b>{result.total} kg / year</b></div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div className="bg-white text-[#0B3A63] p-4 rounded-xl shadow-md">
-              <div className="font-bold text-lg">Scope 1</div>
-              <div>{result.scope1} kg</div>
-            </div>
-
-            <div className="bg-white text-[#0B3A63] p-4 rounded-xl shadow-md">
-              <div className="font-bold text-lg">Scope 2</div>
-              <div>{result.scope2} kg</div>
-            </div>
-
-            <div className="bg-white text-[#0B3A63] p-4 rounded-xl shadow-md">
-              <div className="font-bold text-lg">Scope 3</div>
-              <div>{result.scope3} kg</div>
-            </div>
+          <div className="text-4xl font-extrabold">
+            Total CO₂e: {result.total} kg / year
           </div>
 
-          <button
-            onClick={generateAttestation}
-            className="w-full mt-6 bg-white text-[#0B3A63] py-3 rounded-xl font-bold shadow hover:bg-slate-100"
-          >
-            {loading ? "Generating..." : "Generate Attestation (PDF)"}
+          <div className="space-y-6">
+
+            <div>
+              <div className="font-semibold text-lg">Scope 1 — Direct Emissions</div>
+              <div className="text-sm opacity-80 mb-1">Fuel combustion & building heating</div>
+              <div className="w-full h-3 bg-white/20 rounded">
+                <div
+                  className="h-3 bg-[#1FB6C1] rounded transition-all"
+                  style={{ width: barWidth(result.scope1, result.total) }}
+                ></div>
+              </div>
+              <div className="mt-1 font-bold">{result.scope1} kg</div>
+            </div>
+
+            <div>
+              <div className="font-semibold text-lg">Scope 2 — Indirect Energy</div>
+              <div className="text-sm opacity-80 mb-1">Electricity consumption</div>
+              <div className="w-full h-3 bg-white/20 rounded">
+                <div
+                  className="h-3 bg-[#4FD1C5] rounded transition-all"
+                  style={{ width: barWidth(result.scope2, result.total) }}
+                ></div>
+              </div>
+              <div className="mt-1 font-bold">{result.scope2} kg</div>
+            </div>
+
+            <div>
+              <div className="font-semibold text-lg">Scope 3 — Value Chain</div>
+              <div className="text-sm opacity-80 mb-1">Travel + goods + external services</div>
+              <div className="w-full h-3 bg-white/20 rounded">
+                <div
+                  className="h-3 bg-[#A3BFFA] rounded transition-all"
+                  style={{ width: barWidth(result.scope3, result.total) }}
+                ></div>
+              </div>
+              <div className="mt-1 font-bold">{result.scope3} kg</div>
+            </div>
+
+          </div>
+
+          <button className="w-full bg-white text-[#0B3A63] font-bold py-4 rounded-lg text-lg shadow-md mt-6">
+            Generate Attestation (PDF)
           </button>
+
+          <div className="text-xs opacity-70 mt-6">
+            Emission factors based on consolidated GHG Protocol / DEFRA 2023 datasets.
+            Suitable for SME baseline reporting and supply-chain documentation.
+          </div>
         </div>
       )}
     </div>
   );
-      }
+}
