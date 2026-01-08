@@ -1,12 +1,65 @@
 import { useState } from "react";
 import AssessmentForm from "../components/AssessmentForm";
 import Link from "next/link";
+import Head from "next/head";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div id="top" className="min-h-screen bg-[#F8FAFC] font-sans text-[#1E293B]">
+
+      <Head>
+        {/* ==== SEO CORE ==== */}
+        <title>Certif-Scope — Instant Carbon Footprint Attestation for SMEs</title>
+        <meta
+          name="description"
+          content="Generate an instant carbon footprint attestation (Scope 1 · Scope 2 · Scope 3) for SMEs. Fit for banks, procurement, ESG questionnaires and supply-chain partners."
+        />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://certif-scope.com/" />
+
+        {/* ==== OPEN GRAPH ==== */}
+        <meta property="og:title" content="Certif-Scope — Instant SME Carbon Attestation" />
+        <meta
+          property="og:description"
+          content="Generate a verifiable carbon footprint attestation instantly. Accepted by banks, tenders and procurement platforms."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://certif-scope.com/" />
+        <meta property="og:image" content="/og-image.png" />
+
+        {/* ==== TWITTER ==== */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Certif-Scope — Instant SME Carbon Attestation" />
+        <meta
+          name="twitter:description"
+          content="Instant ESG pre-compliance for SMEs. Generate a structured, verifiable carbon footprint attestation."
+        />
+        <meta name="twitter:image" content="/og-image.png" />
+
+        {/* ==== JSON-LD STRUCTURED DATA ==== */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "Certif-Scope",
+              url: "https://certif-scope.com",
+              description:
+                "Instant carbon footprint attestation generator for SMEs. Scope 1, Scope 2, Scope 3 estimation using a spend-based methodology.",
+              applicationCategory: "ESG Compliance",
+              provider: {
+                "@type": "Organization",
+                name: "Certif-Scope",
+                url: "https://certif-scope.com",
+                email: "contact@certif-scope.com"
+              }
+            }),
+          }}
+        />
+      </Head>
 
       {/* ================= HEADER ================= */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
@@ -58,7 +111,6 @@ export default function Home() {
           </div>
         )}
       </header>
-
 
 
       {/* ================= HERO ================= */}
@@ -197,8 +249,8 @@ export default function Home() {
             <h3 className="font-bold text-[#0B3A63] mb-2">Certif-Scope</h3>
             <p className="text-sm text-[#475569] leading-relaxed">
               Independent ESG Screening Service.<br />
-              Operated by TimeProofs.<br />
-              Privacy-first automated engine.
+              Automated, privacy-first engine.<br />
+              Verifiable carbon footprint attestations.
             </p>
           </div>
 
@@ -213,13 +265,10 @@ export default function Home() {
           </div>
 
           <div>
-            <h3 className="font-bold text-[#0B3A63] mb-2">Operator</h3>
+            <h3 className="font-bold text-[#0B3A63] mb-2">Contact</h3>
             <p className="text-sm text-[#475569] leading-relaxed">
-              TimeProofs — Jeason Alexandre Bacoul<br />
-              SIREN: 999356439<br />
-              3 rue de l’Église de Louppy,<br />
-              55000 Les Hauts-de-Chée, France<br />
-              contact@timeproofs.io
+              Email: contact@certif-scope.com<br />
+              Support: 24/7 automated
             </p>
           </div>
         </div>
@@ -231,4 +280,4 @@ export default function Home() {
 
     </div>
   );
-            }
+      }
