@@ -1,6 +1,6 @@
 // =====================================================
-// RENDER ATTESTATION — VERSION PRO v5
-// Compatible avec carbonEngine v5, attestationTemplate v5
+// RENDER ATTESTATION — VERSION PRO SYNC v5
+// Compatible with carbonEngine v5 + attestationTemplate v5
 // =====================================================
 
 import { attestationTemplate } from "./attestationTemplate";
@@ -8,8 +8,8 @@ import { attestationTemplate } from "./attestationTemplate";
 export type AttestationData = {
   attestationId: string;
   companyName: string;
-  country: string;
   sector: string;
+  country: string;
   period: string;
   year: number;
 
@@ -23,14 +23,13 @@ export type AttestationData = {
 
   qrCodeUrl?: string;
   hash?: string;
+  issueDate?: string;
+  preparedOn?: string;
   generatedAt?: string;
 };
 
 export function fillAttestationTemplate(data: AttestationData): string {
-  // Vérification minimale
-  if (!data.companyName) throw new Error("companyName missing in AttestationData");
-  if (typeof data.total !== "number") throw new Error("total missing or invalid in AttestationData");
-
+  // Parsing valeurs
   const s1 = Number(data.scope1 || 0);
   const s2 = Number(data.scope2 || 0);
   const s3 = Number(data.scope3 || 0);
@@ -43,66 +42,62 @@ export function fillAttestationTemplate(data: AttestationData): string {
   const hashFull = data.hash || "NOT_GENERATED";
   const hashShort = hashFull.substring(0, 10);
 
-  // Génération de table coefficients pour le PDF
-  const coefficientsTable = Object.entries(data.coefficients)
-    .map(
-      ([key, value]) =>
-        `<tr><td>${key}</td><td>${value} kg CO₂</td></tr>`
-    )
+  const coefficientsHtml = Object.entries(data.coefficients)
+    .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td><td>Internal factor v5</td></tr>`)
     .join("");
 
-  const COEFFICIENTS_HTML = `
-    <table border="1" cellspacing="0" cellpadding="6" width="100%">
+  const COEFFICIENTS_TABLE = `
+    <table>
       <thead>
         <tr>
+          <th>Category</th>
           <th>Coefficient</th>
-          <th>Value (kg CO₂)</th>
+          <th>Source</th>
         </tr>
       </thead>
-      <tbody>
-        ${coefficientsTable}
-      </tbody>
+      <tbody>${coefficientsHtml}</tbody>
     </table>
   `;
 
-  const QR_HTML = data.qrCodeUrl
-    ? `<img src="${data.qrCodeUrl}" alt="QR Code" width="120" height="120" />`
-    : `<p>QR Code non généré.</p>`;
+  const QR_CODE = data.qrCodeUrl
+    ? `<img src="${data.qrCodeUrl}" width="120" height="120" alt="QR Code Verification" />`
+    : `<div style="font-size:11px;color:#94A3B8;">QR not generated</div>`;
 
-  const map: Record<string, any> = {
+  const map: Record<string, string> = {
+    ATTESTATION_ID: data.attestationId,
     COMPANY_NAME: data.companyName,
-    COUNTRY: data.country,
     BUSINESS_SECTOR: data.sector,
-    YEAR: data.year.toString(),
-    PERIOD: data.period,
+    COUNTRY: data.country,
+    ASSESSMENT_PERIOD: data.period,
+    YEAR: String(data.year),
 
-    SCOPE1: s1.toFixed(2),
-    SCOPE2: s2.toFixed(2),
-    SCOPE3: s3.toFixed(2),
+    SCOPE_1: s1.toFixed(2),
+    SCOPE_2: s2.toFixed(2),
+    SCOPE_3: s3.toFixed(2),
     TOTAL: total.toFixed(2),
 
-    PCT_SCOPE1: pct1,
-    PCT_SCOPE2: pct2,
-    PCT_SCOPE3: pct3,
-
-    METHODOLOGY_VERSION: data.methodologyVersion,
-    COEFFICIENTS_TABLE: COEFFICIENTS_HTML,
-
-    ATTESTATION_ID: data.attestationId,
-    GENERATED_AT: data.generatedAt || new Date().toISOString(),
+    SCOPE_1_PERCENT: pct1,
+    SCOPE_2_PERCENT: pct2,
+    SCOPE_3_PERCENT: pct3,
 
     HASH: hashFull,
     HASH_SHORT: hashShort,
-    QR_BLOCK: QR_HTML
+
+    METHODOLOGY_VERSION: data.methodologyVersion,
+    COEFFICIENTS_TABLE,
+
+    QR_CODE,
+
+    ISSUE_DATE_UTC: (data.issueDate || new Date().toISOString()).split("T")[0],
+    PREPARED_ON: (data.preparedOn || new Date().toISOString()).split("T")[0],
+    GENERATION_TIMESTAMP: data.generatedAt || new Date().toISOString(),
   };
 
   let html = attestationTemplate;
 
-  // Remplacement strict
-  for (const key in map) {
-    const value = String(map[key] ?? "");
-    html = html.replace(new RegExp(`{{${key}}}`, "g"), value);
-  }
+  Object.keys(map).forEach((k) => {
+    html = html.replace(new RegExp(`{{${k}}}`, "g"), map[k]);
+  });
 
   return html;
-    }
+}
