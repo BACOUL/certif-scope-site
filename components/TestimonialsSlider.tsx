@@ -1,4 +1,4 @@
-const testimonials = [
+export const testimonials = [
   {
     author: "Mark Reynolds",
     role: "Building Contractor – UK",
@@ -19,7 +19,7 @@ const testimonials = [
     role: "Management Consultancy – Germany",
     text: "We submitted the attestation for a public procurement tender, and it was accepted as a valid ESG contribution."
   },
-    {
+  {
     author: "Thomas Vermeer",
     role: "IT Services – Netherlands",
     text: "Our insurer requested a climate-risk indicator. The attestation was accepted without audit or extra checks."
