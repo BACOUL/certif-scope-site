@@ -1,73 +1,37 @@
-import { attestationTemplate } from "./attestationTemplate";
+import { fillAttestationTemplate } from "./attestationTemplate";
+import { toBuffer } from "html-pdf-node";
 
-export type AttestationData = {
-  attestationId: string;
-  issueDate: string;
-  preparedOn: string;
-  companyName: string;
-  sector: string;
-  country: string;
-  period: string;
+export async function renderAttestation(data: any) {
+  const html = fillAttestationTemplate({
+    companyName: data.companyName || "",
+    sector: data.sector || "",
+    country: data.country || "France",
+    period: data.period || new Date().getFullYear().toString(),
+    scope1: data.scope1 || 0,
+    scope2: data.scope2 || 0,
+    scope3: data.scope3 || 0,
+    total: data.total || 0,
+    attestationId: data.attestationId,
+    hash: data.hash,
+    methodologyVersion: data.methodologyVersion || "3.1",
+    generationTimestamp: data.generationTimestamp || new Date().toISOString(),
+    issueDate: data.issueDate || new Date().toISOString(),
+    preparedOn: data.preparedOn || new Date().toISOString(),
+    qrCodeUrl: data.qrCodeUrl || ""
+  });
 
-  scope1: number;
-  scope2: number;
-  scope3: number;
-  total: number;
+  const file = { content: html };
 
-  methodologyVersion?: string;
-  qrCodeUrl?: string;
-  hash?: string;
-  generationTimestamp?: string;
-};
+  const pdfBuffer = await toBuffer(file, {
+    format: "A4",
+    printBackground: true,
+    margin: {
+      top: "15mm",
+      bottom: "15mm",
+      left: "12mm",
+      right: "12mm"
+    }
+  });
 
-export function fillAttestationTemplate(data: AttestationData): string {
-  const total = Number(data.total || 0);
-  const s1 = Number(data.scope1 || 0);
-  const s2 = Number(data.scope2 || 0);
-  const s3 = Number(data.scope3 || 0);
-
-  const pct1 = total > 0 ? ((s1 / total) * 100).toFixed(1) : "0";
-  const pct2 = total > 0 ? ((s2 / total) * 100).toFixed(1) : "0";
-  const pct3 = total > 0 ? ((s3 / total) * 100).toFixed(1) : "0";
-
-  const fullHash = String(data.hash || "PENDING");
-  const shortHash = fullHash.substring(0, 8);
-
-  const map: Record<string, string> = {
-    ATTESTATION_ID: data.attestationId,
-    ISSUE_DATE_UTC: data.issueDate.split("T")[0],
-    PREPARED_ON: data.preparedOn.split("T")[0],
-
-    COMPANY_NAME: data.companyName,
-    BUSINESS_SECTOR: data.sector,
-    COUNTRY: data.country,
-    ASSESSMENT_PERIOD: data.period,
-
-    SCOPE_1: s1.toFixed(2),
-    SCOPE_2: s2.toFixed(2),
-    SCOPE_3: s3.toFixed(2),
-    TOTAL: total.toFixed(2),
-
-    SCOPE_1_PERCENT: pct1,
-    SCOPE_2_PERCENT: pct2,
-    SCOPE_3_PERCENT: pct3,
-
-    METHODOLOGY_VERSION: data.methodologyVersion || "3.1",
-    GENERATION_TIMESTAMP: data.generationTimestamp || new Date().toISOString(),
-
-    QR_CODE: data.qrCodeUrl
-      ? `<img src="${data.qrCodeUrl}" width="120" height="120" alt="QR Code Verification" />`
-      : "",
-
-    HASH: fullHash,
-    HASH_SHORT: shortHash
-  };
-
-  let html = attestationTemplate;
-
-  for (const key in map) {
-    html = html.replace(new RegExp(`{{${key}}}`, "g"), String(map[key]));
-  }
-
-  return html;
+  return pdfBuffer.toString("base64");
 }
