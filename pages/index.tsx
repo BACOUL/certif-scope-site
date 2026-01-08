@@ -1,57 +1,112 @@
 import { useState } from "react";
-import AssessmentForm from "../components/AssessmentForm";
 import Link from "next/link";
 import Head from "next/head";
+import dynamic from "next/dynamic";
+
+const AssessmentForm = dynamic(
+  () => import("../components/AssessmentForm"),
+  { ssr: false, loading: () => <p className="text-center">Loading…</p> }
+);
+
+// Témoignages combinés
+const testimonials = [
+  // existants
+  {
+    author: "Maria Santos",
+    role: "Operations Manager — Portugal",
+    text: "We submitted this attestation to our bank and procurement partners. It was accepted instantly and simplified onboarding.",
+  },
+  {
+    author: "Lukas Schneider",
+    role: "Industrial Supplier — Germany",
+    text: "Our clients requested Scope 1–2–3 data. Certif-Scope gave us a structured report without needing a full carbon audit.",
+  },
+  {
+    author: "Elena Rossi",
+    role: "Consultant — Italy",
+    text: "Perfect for SMEs under pressure to deliver ESG documentation. Clear, fast, and compliant with proportionality rules.",
+  },
+  {
+    author: "Jean Dupont",
+    role: "Contractor — France",
+    text: "Public tenders now require carbon indicators. This attestation was accepted without any issues.",
+  },
+  {
+    author: "Sofia Almeida",
+    role: "E-commerce — Portugal",
+    text: "Having a verifiable attestation improved trust with B2B partners and reduced repetitive ESG questionnaires.",
+  },
+  {
+    author: "David Green",
+    role: "Logistics — UK",
+    text: "Simple, precise and recognised by financial institutions. Exactly what SMEs need today.",
+  },
+  // nouveaux
+  {
+    author: "Mark Reynolds",
+    role: "Building Contractor – UK",
+    text: "Our bank accepted the attestation immediately for a loan application. No further documentation was requested.",
+  },
+  {
+    author: "Isabel Duarte",
+    role: "Online Retail – Portugal",
+    text: "Our logistics partner requires CO₂ indicators for shipments. Certif-Scope was validated without any modification.",
+  },
+  {
+    author: "Luca Ferraro",
+    role: "Industrial Maintenance – Italy",
+    text: "A large supplier asked for carbon documentation. The attestation was recognised as compliant within 24 hours.",
+  },
+  {
+    author: "Katrin Vogel",
+    role: "Management Consultancy – Germany",
+    text: "We submitted the attestation for a public procurement tender, and it was accepted as a valid ESG contribution.",
+  },
+  {
+    author: "Thomas Vermeer",
+    role: "IT Services – Netherlands",
+    text: "Our insurer requested a climate-risk indicator. The attestation was accepted without audit or extra checks.",
+  },
+  {
+    author: "Elena Morales",
+    role: "Textile Manufacturing – Spain",
+    text: "International clients now expect structured CO₂ data. Certif-Scope provides exactly what they ask for.",
+  },
+];
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div id="top" className="min-h-screen bg-[#F8FAFC] font-sans text-[#1E293B]">
-
       <Head>
         <title>Certif-Scope — Instant Carbon Footprint Attestation for SMEs</title>
         <meta
           name="description"
-          content="Generate an instant carbon footprint attestation (Scope 1, 2, 3) for SMEs. Fit for banks, procurement, ESG questionnaires and supply chain partners."
+          content="Generate an instant carbon footprint attestation (Scope 1 · Scope 2 · Scope 3) for SMEs."
         />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://certif-scope.com/" />
 
+        <link rel="preload" href="/og-image.png" as="image" />
+
         <meta property="og:title" content="Certif-Scope — Instant SME Carbon Attestation" />
         <meta
           property="og:description"
-          content="Generate a verifiable carbon footprint attestation instantly. Accepted by banks, tenders and procurement platforms."
+          content="Generate a verifiable carbon footprint attestation instantly. Accepted by banks and procurement."
         />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://certif-scope.com/" />
         <meta property="og:image" content="/og-image.png" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Certif-Scope — Instant SME Carbon Attestation" />
-        <meta
-          name="twitter:description"
-          content="Instant ESG pre-compliance for SMEs. Generate a structured, verifiable carbon footprint attestation."
-        />
-        <meta name="twitter:image" content="/og-image.png" />
-
-        {/* Accessibilité : langue + repère principal */}
       </Head>
 
       {/* ================= HEADER ================= */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50" role="banner">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
-          <Link
-            href="/"
-            className="text-xl font-black tracking-tight hover:opacity-80 transition-opacity duration-200"
-            aria-label="Homepage"
-          >
+          <Link href="/" className="text-xl font-black tracking-tight">
             <span className="text-[#0B3A63]">Certif-</span>
             <span className="text-[#1FB6C1]">Scope</span>
           </Link>
 
-          <nav aria-label="Main navigation" className="hidden md:flex items-center gap-8 text-sm font-medium text-[#334155]">
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[#475569]">
             <Link href="/why-required" className="hover:text-[#1FB6C1]">Why Required</Link>
             <Link href="/methodology" className="hover:text-[#1FB6C1]">Methodology</Link>
             <Link href="/verify" className="hover:text-[#1FB6C1]">Verify</Link>
@@ -60,17 +115,17 @@ export default function Home() {
 
           <a
             href="#assessment"
-            className="hidden md:inline-flex bg-[#1FB6C1] text-white text-xs font-bold uppercase px-5 py-3 rounded-lg hover:bg-[#17A2AC]"
+            className="hidden md:inline-flex bg-[#1FB6C1] text-white text-xs font-bold px-5 py-3 rounded-lg"
           >
             Start Assessment
           </a>
 
           <button
             className="md:hidden text-[#0B3A63]"
+            aria-label="Toggle menu"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle navigation menu"
           >
-            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="24" height="24" stroke="currentColor" strokeWidth="2">
               <line x1="4" y1="6" x2="20" y2="6" />
               <line x1="4" y1="12" x2="20" y2="12" />
               <line x1="4" y1="18" x2="20" y2="18" />
@@ -80,7 +135,7 @@ export default function Home() {
 
         {menuOpen && (
           <div className="md:hidden bg-white border-t border-slate-200 px-6 py-6">
-            <nav aria-label="Mobile navigation" className="flex flex-col gap-4 text-sm font-semibold text-[#334155]">
+            <nav className="flex flex-col gap-4 text-sm font-semibold text-[#475569]">
               <Link href="/why-required" onClick={() => setMenuOpen(false)}>Why Required</Link>
               <Link href="/methodology" onClick={() => setMenuOpen(false)}>Methodology</Link>
               <Link href="/verify" onClick={() => setMenuOpen(false)}>Verify</Link>
@@ -90,135 +145,71 @@ export default function Home() {
         )}
       </header>
 
+      {/* ================= HERO ================= */}
+      <section className="max-w-5xl mx-auto px-6 py-20 text-center">
+        <span className="inline-block mb-6 px-4 py-1 text-xs font-bold uppercase tracking-widest rounded-full bg-[#CCE7EA] text-[#0B3A63]">
+          ESG pre-compliance for SMEs
+        </span>
 
-      {/* ================= MAIN ================= */}
-      <main role="main">
+        <h1 className="text-4xl md:text-5xl font-black mb-6 text-[#0B3A63]">
+          Instant SME Carbon Footprint Attestation
+        </h1>
 
-        {/* ================= HERO ================= */}
-        <section className="max-w-5xl mx-auto px-6 py-24 text-center">
-          <span className="inline-block mb-6 px-4 py-1 text-xs font-bold uppercase tracking-widest rounded-full bg-[#CCE7EA] text-[#0B3A63]">
-            ESG pre-compliance for SMEs
-          </span>
+        <h2 className="text-xl md:text-2xl font-bold mb-6 text-[#1FB6C1]">
+          Scope 1 · Scope 2 · Scope 3 estimation
+        </h2>
 
-          <h1 className="text-3xl md:text-5xl font-black mb-6 text-[#0B3A63]">
-            Instant SME Carbon Footprint Attestation<br />
-            <span className="text-[#1FB6C1]">Scope 1 · Scope 2 · Scope 3 estimation</span>
-          </h1>
+        <p className="text-lg text-[#475569] max-w-3xl mx-auto mb-10">
+          Instantly calculate your emissions using a recognized spend-based methodology.
+        </p>
 
-          <p className="text-lg text-[#475569] max-w-3xl mx-auto mb-10">
-            Instantly calculate your emissions using a recognized spend-based methodology.
-            Get a professional PDF attestation for ESG questionnaires, banks and supply-chain partners.
-          </p>
+        <a
+          href="#assessment"
+          className="inline-flex bg-[#1FB6C1] text-white font-bold px-8 py-4 rounded-xl shadow"
+        >
+          Start my assessment
+        </a>
 
-          <div className="flex flex-col items-center gap-4">
-            <a
-              href="#assessment"
-              className="inline-flex bg-[#1FB6C1] text-white font-bold px-8 py-4 rounded-xl shadow hover:bg-[#17A2AC]"
+        <div className="mt-8 flex flex-col items-center gap-2">
+          <Link href="/sample-pdf" className="text-sm underline text-[#475569]">View sample PDF</Link>
+          <Link href="/verify" className="text-sm underline text-[#475569]">Verify attestation</Link>
+        </div>
+      </section>
+
+      {/* ================= TESTIMONIALS ================= */}
+      <section className="max-w-6xl mx-auto px-6 py-20">
+        <h2 className="text-3xl font-black text-center text-[#0B3A63] mb-10">
+          What SMEs across Europe say
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {testimonials.map((t, i) => (
+            <div
+              key={i}
+              className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm"
             >
-              Start my assessment
-            </a>
-
-            <Link href="/sample-pdf" className="text-sm text-[#475569] underline hover:text-[#0B3A63]">
-              View sample PDF
-            </Link>
-
-            <Link href="/verify" className="text-sm text-[#475569] underline hover:text-[#0B3A63]">
-              Verify an existing attestation
-            </Link>
-          </div>
-
-          <p className="mt-8 text-sm text-[#64748B]">
-            Free preview · No account required · Pay only to download the official PDF
-          </p>
-        </section>
-
-
-        {/* ================= TRUST BOXES ================= */}
-        <section aria-labelledby="trust-title" className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <h2 id="trust-title" className="sr-only">Trust and Transparency Information</h2>
-          {[
-            ['What this is', 'A standardized methodological carbon footprint attestation using a recognized spend-based method.'],
-            ['What this is not', 'Not a CSRD filing. Not a certified audit. Not a regulatory declaration.'],
-            ['Privacy-first', 'All calculations are performed locally. No raw data is stored.']
-          ].map(([title, text]) => (
-            <div key={title} className="bg-white border border-slate-200 rounded-xl p-6">
-              <h3 className="font-bold text-[#0B3A63] mb-2">{title}</h3>
-              <p className="text-sm text-[#475569]">{text}</p>
+              <p className="text-sm text-[#475569] mb-4">“{t.text}”</p>
+              <p className="font-bold text-[#0B3A63]">{t.author}</p>
+              <p className="text-xs text-[#64748B]">{t.role}</p>
             </div>
           ))}
-        </section>
+        </div>
+      </section>
 
-
-        {/* ================= TESTIMONIALS (MERGED + NEW) ================= */}
-        <section className="max-w-6xl mx-auto px-6 py-20">
-          <h2 className="text-3xl font-black text-center text-[#0B3A63] mb-10">
-            What SMEs across Europe say
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-            {/* ======= Testimonials merged from both lists ======= */}
-            {[
-              ["Maria Santos", "Operations Manager — Portugal", "We submitted this attestation to our bank and procurement partners. It was accepted instantly and simplified onboarding."],
-              ["Lukas Schneider", "Industrial Supplier — Germany", "Our clients requested Scope 1–2–3 data. Certif-Scope gave us a structured report without needing a full carbon audit."],
-              ["Elena Rossi", "Consultant — Italy", "Perfect for SMEs under pressure to deliver ESG documentation. Clear, fast, and compliant with proportionality rules."],
-              ["Jean Dupont", "Contractor — France", "Public tenders now require carbon indicators. This attestation was accepted without any issues."],
-              ["Sofia Almeida", "E-commerce — Portugal", "Having a verifiable attestation improved trust with B2B partners and reduced repetitive ESG questionnaires."],
-              ["David Green", "Logistics — UK", "Simple, precise and recognised by financial institutions. Exactly what SMEs need today."],
-
-              // New testimonials
-              ["Mark Reynolds", "Building Contractor – UK", "Our bank accepted the attestation immediately for a loan application. No further documentation was requested."],
-              ["Isabel Duarte", "Online Retail – Portugal", "Our logistics partner requires CO₂ indicators for shipments. Certif-Scope was validated without any modification."],
-              ["Luca Ferraro", "Industrial Maintenance – Italy", "A large supplier asked for carbon documentation. The attestation was recognised as compliant within 24 hours."],
-              ["Katrin Vogel", "Management Consultancy – Germany", "We submitted the attestation for a public procurement tender, and it was accepted as a valid ESG contribution."],
-              ["Thomas Vermeer", "IT Services – Netherlands", "Our insurer requested a climate-risk indicator. The attestation was accepted without audit or extra checks."],
-              ["Elena Morales", "Textile Manufacturing – Spain", "International clients now expect structured CO₂ data. Certif-Scope provides exactly what they ask for."]
-              
-            ].map(([name, role, text], i) => (
-              <article
-                key={i}
-                className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300"
-              >
-                <p className="text-sm text-[#475569] mb-4">“{text}”</p>
-                <p className="font-bold text-[#0B3A63]">{name}</p>
-                <p className="text-xs text-[#64748B]">{role}</p>
-              </article>
-            ))}
-
-          </div>
-        </section>
-
-
-        {/* ================= FORM ================= */}
-        <section id="assessment" className="max-w-4xl mx-auto py-24 px-6">
-          <div className="text-center mb-6">
-            <span className="text-xs font-bold text-[#1FB6C1] uppercase tracking-widest">
-              Private by design — data stays on your device
-            </span>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-1">
-            <AssessmentForm />
-          </div>
-
-          <div className="text-center mt-6">
-            <span className="text-sm text-[#64748B]">No account required</span>
-          </div>
-        </section>
-
-      </main>
-
+      {/* ================= FORM ================= */}
+      <section id="assessment" className="max-w-4xl mx-auto py-24 px-6">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+          <AssessmentForm />
+        </div>
+      </section>
 
       {/* ================= FOOTER ================= */}
-      <footer className="bg-white border-t border-slate-200 py-16 px-6" role="contentinfo">
+      <footer className="bg-white border-t border-slate-200 py-16 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-
           <div>
             <h3 className="font-bold text-[#0B3A63] mb-2">Certif-Scope</h3>
-            <p className="text-sm text-[#475569] leading-relaxed">
-              Independent ESG Screening Service.<br />
-              Automated, privacy-first engine.<br />
-              Verifiable carbon footprint attestations.
+            <p className="text-sm text-[#475569]">
+              Independent ESG Screening Service. Privacy-first. Verifiable attestations.
             </p>
           </div>
 
@@ -234,18 +225,10 @@ export default function Home() {
 
           <div>
             <h3 className="font-bold text-[#0B3A63] mb-2">Contact</h3>
-            <p className="text-sm text-[#475569] leading-relaxed">
-              Email: contact@certif-scope.com<br />
-              Support: 24/7 automated
-            </p>
+            <p className="text-sm text-[#475569]">contact@certif-scope.com</p>
           </div>
         </div>
-
-        <p className="text-center mt-12 text-xs text-[#94A3B8]">
-          © 2026 Certif-Scope — All rights reserved
-        </p>
       </footer>
-
     </div>
   );
-              }
+}
