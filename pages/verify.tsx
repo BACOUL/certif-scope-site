@@ -18,7 +18,7 @@ export default function VerifyPage() {
     if (qid) setId(qid);
     if (qhash) setHash(qhash);
 
-    // auto-verify from QR code
+    // Auto-verify from QR code
     if (qid && qhash && /^[a-f0-9]{64}$/i.test(qhash)) {
       verify(qid, qhash);
     }
@@ -47,8 +47,14 @@ export default function VerifyPage() {
     setResult(null);
 
     try {
+      const origin =
+        window.location.hostname === "certif-scope.com"
+          ? "https://certif-scope.com"
+          : "https://certif-scope.com";
+
       const sources = [
-        "/attestations.json", // primary
+        `${origin}/attestations.json`,
+        "/attestations.json",
         "https://raw.githubusercontent.com/BACOUL/certif-scope/main/public/attestations.json"
       ];
 
@@ -102,7 +108,6 @@ export default function VerifyPage() {
 
       <div className="w-full min-h-screen bg-white text-[#334155] font-sans" id="top">
 
-        {/* HEADER */}
         <div className="sticky top-0 bg-white border-b border-[#E2E8F0] py-4 px-6 md:px-12 z-40 shadow-sm">
           <div className="max-w-[1200px] mx-auto flex items-center justify-between">
             <a
@@ -117,7 +122,6 @@ export default function VerifyPage() {
           </div>
         </div>
 
-        {/* MAIN CONTENT */}
         <div className="max-w-[900px] mx-auto pt-14 px-6 md:px-12 pb-28">
 
           <h1 className="text-3xl md:text-4xl font-black text-center text-[#0B3A63] mb-4">
@@ -128,7 +132,6 @@ export default function VerifyPage() {
             Enter the Attestation ID and the document’s SHA-256 hash to confirm authenticity.
           </p>
 
-          {/* FORM */}
           <div className="bg-white border border-[#E2E8F0] rounded-xl p-8 shadow-sm max-w-xl mx-auto space-y-6">
 
             <div>
@@ -170,12 +173,10 @@ export default function VerifyPage() {
             </button>
           </div>
 
-          {/* ERROR */}
           {error && (
             <p className="text-center mt-6 text-red-600 font-semibold">{error}</p>
           )}
 
-          {/* RESULT */}
           {result && (
             <div className="mt-10 p-8 bg-white border border-[#E2E8F0] rounded-xl shadow-sm max-w-xl mx-auto">
               {result.valid ? (
@@ -208,7 +209,6 @@ export default function VerifyPage() {
             </div>
           )}
 
-          {/* FOOTER LINKS */}
           <div className="text-center mt-10 text-xs text-[#475569] space-x-6">
             <a href="/legal" className="text-[#1FB6C1] hover:text-[#0B3A63]">Legal</a>
             <a href="/privacy" className="text-[#1FB6C1] hover:text-[#0B3A63]">Privacy</a>
@@ -224,4 +224,4 @@ export default function VerifyPage() {
       </div>
     </>
   );
-      }
+}
