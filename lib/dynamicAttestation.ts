@@ -1,39 +1,29 @@
-import { calculateCarbon } from "./carbonEngine";
-import { renderAttestation } from "./renderAttestation";
-import crypto from "crypto";
+export function generateDynamicSections(scopes: Record<string, number>) {
+  let rows = "";
+  let charts = "";
+  const total = Object.values(scopes).reduce((acc, v) => acc + v, 0) || 1;
 
-export async function generateDynamicAttestation(input: any) {
-  const report = calculateCarbon(input);
+  for (const [label, value] of Object.entries(scopes)) {
+    const pct = ((value / total) * 100).toFixed(1);
 
-  const attestationId = crypto.randomUUID();
-  const raw = `${attestationId}:${JSON.stringify(report)}:${Date.now()}`;
-  const hash = crypto.createHash("sha256").update(raw).digest("hex");
+    rows += `
+      <tr>
+        <td><strong>${label}</strong></td>
+        <td>${value} tCO₂e</td>
+        <td>${pct}%</td>
+      </tr>
+    `;
 
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://certif-scope.com/verify?id=${attestationId}&hash=${hash}`;
+    charts += `
+      <div class="chart-row">
+        <div class="chart-label">${label}</div>
+        <div class="chart-bar-bg">
+          <div class="chart-bar-fill" style="width:${pct}%; background:#1FB6C1;"></div>
+        </div>
+        <div class="chart-value">${value} t</div>
+      </div>
+    `;
+  }
 
-  const pdfBase64 = await renderAttestation({
-    companyName: input.companyName || "",
-    sector: input.sector || "",
-    country: input.country || "France",
-    period: input.period || new Date().getFullYear().toString(),
-    scope1: report.scope1,
-    scope2: report.scope2,
-    scope3: report.scope3,
-    total: report.total,
-    attestationId,
-    hash,
-    methodologyVersion: "3.1",
-    generationTimestamp: new Date().toISOString(),
-    issueDate: new Date().toISOString(),
-    preparedOn: new Date().toISOString(),
-    qrCodeUrl
-  });
-
-  return {
-    attestationId,
-    hash,
-    verifyUrl: `https://certif-scope.com/verify?id=${attestationId}&hash=${hash}`,
-    pdfBase64,
-    report
-  };
+  return { rows, charts };
 }
