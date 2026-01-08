@@ -1,8 +1,81 @@
+import Head from "next/head";
+
 export default function WhyRequired() {
   return (
     <>
+      <Head>
+        <title>Why Carbon Attestation is Required — Certif-Scope</title>
+
+        <meta
+          name="description"
+          content="Learn why banks, insurers, supply-chain partners, procurement platforms and large companies now request CO₂ indicators from SMEs. CSRD, ESRS, proportionality, and EU regulatory context explained in a simple structured format."
+        />
+
+        <link rel="canonical" href="https://certif-scope.com/why-required" />
+        <meta name="robots" content="index, follow" />
+
+        {/* OG / SOCIAL */}
+        <meta property="og:title" content="Why Carbon Attestation is Required — Certif-Scope" />
+        <meta
+          property="og:description"
+          content="SMEs across Europe now must provide carbon indicators to banks, insurers, tenders and supply-chain partners. Understand why and how Certif-Scope meets EU criteria."
+        />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="https://certif-scope.com/why-required" />
+        <meta property="og:image" content="https://certif-scope.com/og-image.png" />
+
+        {/* TWITTER */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Why Carbon Attestation is Required" />
+        <meta
+          name="twitter:description"
+          content="Understand why European SMEs must now provide carbon footprint data to major stakeholders."
+        />
+        <meta name="twitter:image" content="https://certif-scope.com/og-image.png" />
+
+        {/* STRUCTURED DATA FAQ */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "Why do SMEs need to provide carbon data?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Banks, insurers, procurement platforms and large corporations now require structured CO₂ indicators for ESG scoring and CSRD supply-chain compliance."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  name: "Is there an official EU format for SME carbon reporting?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "No. Under EU proportionality rules, simplified and reasonable CO₂ estimates are accepted for SMEs."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  name: "Can a bank refuse Certif-Scope?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Banks can request carbon data, but cannot force SMEs to follow a proprietary format. Any structured, traceable estimate must be accepted."
+                  }
+                }
+              ]
+            }),
+          }}
+        />
+      </Head>
+
+      {/* ============================================= PAGE CONTENT ============================================= */}
+
       <div className="w-full min-h-screen bg-white text-[#334155] font-sans" id="top">
 
+        {/* HEADER */}
         <div className="sticky top-0 bg-white border-b border-[#E2E8F0] py-4 px-6 md:px-12 z-40 shadow-sm">
           <div className="max-w-[1200px] mx-auto flex items-center justify-between">
             <a href="/" className="text-[#0B3A63] font-semibold hover:text-[#1FB6C1] transition flex items-center gap-2">
@@ -17,6 +90,7 @@ export default function WhyRequired() {
           </div>
         </div>
 
+        {/* MAIN BLOCK */}
         <div className="max-w-[1200px] mx-auto flex flex-col gap-10 pt-10 px-6 md:px-12">
 
           <h1 className="text-3xl md:text-4xl font-black text-center text-[#0B3A63] mb-4">
@@ -52,6 +126,7 @@ export default function WhyRequired() {
             EU law does not impose a mandatory format — any structured and verifiable CO₂ indicator must be accepted.
           </div>
 
+          {/* NAVIGATION */}
           <div className="flex flex-wrap justify-center gap-4 text-sm font-semibold mt-6">
             <a href="#actors" className="text-[#1FB6C1] hover:text-[#0B3A63]">7 actors</a>
             <a href="#regulation" className="text-[#1FB6C1] hover:text-[#0B3A63]">Regulations</a>
@@ -59,13 +134,14 @@ export default function WhyRequired() {
             <a href="#top" className="text-[#1FB6C1] hover:text-[#0B3A63]">Top ↑</a>
           </div>
 
+          {/* ================ 7 ACTORS BLOCK ================ */}
+
           <section className="bg-[#F8FAFC] py-20 px-6 md:px-12 rounded-xl">
             <h2 id="actors" className="text-2xl font-black text-[#0B3A63] mb-10">
               The 7 major actors requesting carbon data from SMEs
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-
               {[
                 ["Large Corporations / Supply-Chain", "They need supplier data for mandatory Scope 3 reporting under CSRD."],
                 ["Procurement Platforms", "Carbon indicators are now required in purchasing systems."],
@@ -80,10 +156,10 @@ export default function WhyRequired() {
                   <p className="text-sm text-[#475569]">{text}</p>
                 </div>
               ))}
-
             </div>
           </section>
 
+          {/* TIMELINE */}
           <div className="text-center mt-10 mb-16">
             <p className="text-sm text-[#475569] mb-3">These requirements have accelerated since 2023 :</p>
             <div className="flex flex-col md:flex-row justify-center items-center gap-6 text-xs text-[#64748B]">
@@ -97,6 +173,7 @@ export default function WhyRequired() {
             </div>
           </div>
 
+          {/* COMPARISON TABLE */}
           <table className="w-full text-sm border border-[#E2E8F0] rounded-xl overflow-hidden">
             <thead className="bg-[#E6F6F7] text-[#0B3A63] font-bold">
               <tr>
@@ -147,11 +224,31 @@ export default function WhyRequired() {
             </p>
 
             {[
-              ["CSRD Directive (2022/2464)", "Large companies must report Scope 1, 2 and 3 emissions. This requires supplier data, but SMEs are not forced into audits or a specific format.", "Directive (EU) 2022/2464 — Article 19a(2), Article 29a(2)"],
-              ["ESRS E1 & E1-4 Technical Standards", "ESRS require emissions data from supply chains. SMEs may provide simplified and proportionate estimates.", "ESRS E1 Appendix B"],
-              ["EU Principle of Proportionality (Art. 6 ESRS)", "SMEs cannot be required to produce documents exceeding their resources.", "ESRS General Requirements — Art. 6"],
-              ["No mandatory EU carbon format for SMEs", "There is no official or certified PDF format required for SMEs. Any structured indicator must be accepted.", ""],
-              ["Can a bank refuse this attestation?", "Banks may request data, but cannot impose a proprietary format under proportionality and non-discrimination rules.", ""]
+              [
+                "CSRD Directive (2022/2464)",
+                "Large companies must report Scope 1, 2 and 3 emissions. This requires supplier data, but SMEs are not forced into audits or a specific format.",
+                "Directive (EU) 2022/2464 — Article 19a(2), Article 29a(2)"
+              ],
+              [
+                "ESRS E1 & E1-4 Technical Standards",
+                "ESRS require emissions data from supply chains. SMEs may provide simplified and proportionate estimates.",
+                "ESRS E1 Appendix B"
+              ],
+              [
+                "EU Principle of Proportionality (Art. 6 ESRS)",
+                "SMEs cannot be required to produce documents exceeding their resources.",
+                "ESRS General Requirements — Art. 6"
+              ],
+              [
+                "No mandatory EU carbon format for SMEs",
+                "There is no official or certified PDF format required for SMEs. Any structured indicator must be accepted.",
+                ""
+              ],
+              [
+                "Can a bank refuse this attestation?",
+                "Banks may request data, but cannot impose a proprietary format under proportionality and non-discrimination rules.",
+                ""
+              ]
             ].map(([title, body, ref]) => (
               <div key={title} className="mb-8">
                 <h3 className="text-xl font-bold text-[#0B3A63] mb-2">{title}</h3>
@@ -162,6 +259,7 @@ export default function WhyRequired() {
 
           </section>
 
+          {/* BENEFITS SECTION */}
           <section className="bg-[#F8FAFC] py-14 px-6 md:px-12 rounded-xl mt-10">
             <h2 id="benefits" className="text-2xl font-black text-[#0B3A63] mb-6 text-center">
               Why this benefits SMEs
@@ -182,6 +280,7 @@ export default function WhyRequired() {
             </div>
           </section>
 
+          {/* ACCEPTANCE BLOCK */}
           <section className="bg-white py-16 px-6 md:px-12 rounded-xl mt-16">
             <h2 className="text-2xl font-black text-[#0B3A63] mb-6 text-center">
               Accepted across all major stakeholder categories
@@ -244,4 +343,4 @@ export default function WhyRequired() {
       `}</style>
     </>
   );
-      }
+                }
