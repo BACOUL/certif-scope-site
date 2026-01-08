@@ -1,75 +1,47 @@
-// =====================================================
-// RENDER ATTESTATION — VERSION PRO SYNC v5
-// Compatible with carbonEngine v5 + attestationTemplate v5
-// =====================================================
-
 import { attestationTemplate } from "./attestationTemplate";
 
 export type AttestationData = {
   attestationId: string;
+  issueDate: string;
+  preparedOn: string;
   companyName: string;
   sector: string;
   country: string;
   period: string;
-  year: number;
 
   scope1: number;
   scope2: number;
   scope3: number;
   total: number;
 
-  methodologyVersion: string;
-  coefficients: Record<string, number>;
-
+  methodologyVersion?: string;
   qrCodeUrl?: string;
   hash?: string;
-  issueDate?: string;
-  preparedOn?: string;
-  generatedAt?: string;
+  generationTimestamp?: string;
 };
 
 export function fillAttestationTemplate(data: AttestationData): string {
-  // Parsing valeurs
+  const total = Number(data.total || 0);
   const s1 = Number(data.scope1 || 0);
   const s2 = Number(data.scope2 || 0);
   const s3 = Number(data.scope3 || 0);
-  const total = Number(data.total || 0);
 
-  const pct1 = total > 0 ? ((s1 / total) * 100).toFixed(1) : "0.0";
-  const pct2 = total > 0 ? ((s2 / total) * 100).toFixed(1) : "0.0";
-  const pct3 = total > 0 ? ((s3 / total) * 100).toFixed(1) : "0.0";
+  const pct1 = total > 0 ? ((s1 / total) * 100).toFixed(1) : "0";
+  const pct2 = total > 0 ? ((s2 / total) * 100).toFixed(1) : "0";
+  const pct3 = total > 0 ? ((s3 / total) * 100).toFixed(1) : "0";
 
-  const hashFull = data.hash || "NOT_GENERATED";
-  const hashShort = hashFull.substring(0, 10);
-
-  const coefficientsHtml = Object.entries(data.coefficients)
-    .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td><td>Internal factor v5</td></tr>`)
-    .join("");
-
-  const COEFFICIENTS_TABLE = `
-    <table>
-      <thead>
-        <tr>
-          <th>Category</th>
-          <th>Coefficient</th>
-          <th>Source</th>
-        </tr>
-      </thead>
-      <tbody>${coefficientsHtml}</tbody>
-    </table>
-  `;
-
-  const QR_CODE = data.qrCodeUrl
-    ? `<img src="${data.qrCodeUrl}" width="120" height="120" alt="QR Code Verification" />`
-    : `<div style="font-size:11px;color:#94A3B8;">QR not generated</div>`;
+  const fullHash = String(data.hash || "PENDING");
+  const shortHash = fullHash.substring(0, 8);
 
   const map: Record<string, string> = {
     ATTESTATION_ID: data.attestationId,
+    ISSUE_DATE_UTC: data.issueDate.split("T")[0],
+    PREPARED_ON: data.preparedOn.split("T")[0],
+
     COMPANY_NAME: data.companyName,
     BUSINESS_SECTOR: data.sector,
     COUNTRY: data.country,
     ASSESSMENT_PERIOD: data.period,
-    YEAR: String(data.year),
 
     SCOPE_1: s1.toFixed(2),
     SCOPE_2: s2.toFixed(2),
@@ -80,24 +52,22 @@ export function fillAttestationTemplate(data: AttestationData): string {
     SCOPE_2_PERCENT: pct2,
     SCOPE_3_PERCENT: pct3,
 
-    HASH: hashFull,
-    HASH_SHORT: hashShort,
+    METHODOLOGY_VERSION: data.methodologyVersion || "3.1",
+    GENERATION_TIMESTAMP: data.generationTimestamp || new Date().toISOString(),
 
-    METHODOLOGY_VERSION: data.methodologyVersion,
-    COEFFICIENTS_TABLE,
+    QR_CODE: data.qrCodeUrl
+      ? `<img src="${data.qrCodeUrl}" width="120" height="120" alt="QR Code Verification" />`
+      : "",
 
-    QR_CODE,
-
-    ISSUE_DATE_UTC: (data.issueDate || new Date().toISOString()).split("T")[0],
-    PREPARED_ON: (data.preparedOn || new Date().toISOString()).split("T")[0],
-    GENERATION_TIMESTAMP: data.generatedAt || new Date().toISOString(),
+    HASH: fullHash,
+    HASH_SHORT: shortHash
   };
 
   let html = attestationTemplate;
 
-  Object.keys(map).forEach((k) => {
-    html = html.replace(new RegExp(`{{${k}}}`, "g"), map[k]);
-  });
+  for (const key in map) {
+    html = html.replace(new RegExp(`{{${key}}}`, "g"), String(map[key]));
+  }
 
   return html;
 }
