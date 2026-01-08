@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   /**
-   * VALIDATION ORIGIN — universal + secure
+   * ORIGIN VALIDATION (host + origin headers)
    */
   const host = req.headers.host || "";
   const origin = req.headers.origin || "";
@@ -22,16 +22,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     "vercel.app"
   ];
 
-  const isAllowed =
-    allowedHosts.some((h) => host.includes(h)) ||
-    allowedHosts.some((h) => origin.includes(h));
+  const allowed =
+    allowedHosts.some(h => host.includes(h)) ||
+    allowedHosts.some(h => origin.includes(h));
 
-  if (!isAllowed) {
+  if (!allowed) {
     return res.status(403).json({ error: "Forbidden origin" });
   }
 
   /**
-   * VALIDATION DATA
+   * INPUT VALIDATION
    */
   let { id, hash } = req.body;
 
@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "Invalid attestation ID format" });
   }
 
-  hash = hash.toLowerCase();
+  hash = hash.trim().toLowerCase();
 
   if (!/^[a-f0-9]{64}$/.test(hash)) {
     return res.status(400).json({ error: "Invalid SHA-256 hash format" });
@@ -53,6 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
    * GITHUB CONFIG
    */
   const token = process.env.GITHUB_TOKEN;
+
   if (!token) {
     return res.status(500).json({ error: "GitHub token missing" });
   }
@@ -62,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     /**
-     * STEP 1 — READ CURRENT FILE
+     * 1) READ CURRENT REGISTRY
      */
     const raw = await fetch(GH_URL, {
       headers: {
@@ -80,6 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       file = null;
     } else {
       file = await raw.json();
+
       try {
         const decoded = Buffer.from(file.content, "base64").toString("utf8");
         existing = JSON.parse(decoded);
@@ -89,9 +91,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     /**
-     * STEP 2 — CHECK DUPLICATES
+     * 2) DUPLICATE CHECKS
      */
-    if (existing.attestations.find((a: any) => a.id === id)) {
+    const byId = existing.attestations.find((a: any) => a.id === id);
+    if (byId) {
       return res.status(200).json({
         success: true,
         info: "ID already registered",
@@ -100,15 +103,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    if (existing.attestations.find((a: any) => a.hash === hash)) {
+    const byHash = existing.attestations.find((a: any) => a.hash === hash);
+    if (byHash) {
       return res.status(400).json({
         error: "Hash already registered",
-        existingId: existing.attestations.find((a: any) => a.hash === hash).id
+        existingId: byHash.id
       });
     }
 
     /**
-     * STEP 3 — INSERT NEW ENTRY
+     * 3) INSERT NEW ENTRY
      */
     existing.attestations.push({
       id,
@@ -122,12 +126,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ).toString("base64");
 
     /**
-     * STEP 4 — COMMIT TO GITHUB
+     * 4) COMMIT TO GITHUB
      */
     const commitBody: any = {
       message: `Add attestation ${id}`,
       content: newContent,
-      sha: file?.sha || undefined
+      sha: file?.sha
     };
 
     let commitRes = await fetch(GH_URL, {
@@ -141,7 +145,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     /**
-     * HANDLE 409 — RELOAD + RETRY
+     * 409 MERGE CONFLICT → RELOAD + RETRY
      */
     if (commitRes.status === 409) {
       const freshReq = await fetch(GH_URL, {
@@ -154,7 +158,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const fresh = await freshReq.json();
       commitBody.sha = fresh.sha;
 
-      // RETRY COMMIT
       commitRes = await fetch(GH_URL, {
         method: "PUT",
         headers: {
@@ -187,4 +190,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       details: err.message
     });
   }
-    }
+      }
