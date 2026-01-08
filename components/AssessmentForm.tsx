@@ -21,7 +21,6 @@ export default function AssessmentForm() {
   const [results, setResults] = useState<any>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
 
-  // CALCULATE FOOTPRINT + SAVE REPORT LOCALLY
   const handleCalculate = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -38,33 +37,25 @@ export default function AssessmentForm() {
       "certif-scope-report",
       JSON.stringify({
         companyName: formData.companyName,
-        sector: formData.sector,
-        revenue: formData.revenue,
-        fuelSpent: formData.fuelSpent,
-        electricitySpent: formData.electricitySpent,
+        ...formData,
         ...calculation
       })
     );
   };
 
-  // STRIPE CHECKOUT
   const handleStripe = async () => {
     const res = await fetch('/api/create-checkout-session', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        companyName: formData.companyName
-      })
+      body: JSON.stringify({ companyName: formData.companyName })
     });
 
     const data = await res.json();
     if (data.url) window.location.href = data.url;
   };
 
-  // TEST ATTESTATION GENERATION (NO PAYMENT)
   const handleTestAttestation = async () => {
     const report = JSON.parse(localStorage.getItem("certif-scope-report") || "{}");
-
     if (!report.companyName) {
       alert("Please calculate your footprint first.");
       return;
@@ -88,23 +79,24 @@ export default function AssessmentForm() {
     }
   };
 
-  // Auto scroll to results
   useEffect(() => {
     if (results && resultsRef.current) {
       resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [results]);
 
+
   return (
     <div className="max-w-2xl mx-auto space-y-12">
 
       {/* FORM */}
       <form
+        aria-labelledby="assessment-title"
         onSubmit={handleCalculate}
         className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden"
       >
         <div className="px-8 py-6 border-b border-slate-200">
-          <h3 className="text-lg font-bold text-[#0B3A63]">
+          <h3 id="assessment-title" className="text-lg font-bold text-[#0B3A63]">
             Carbon footprint assessment
           </h3>
           <p className="text-sm text-slate-500 mt-1">
@@ -116,13 +108,19 @@ export default function AssessmentForm() {
 
           {/* Company name */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
+            <label
+              htmlFor="companyName"
+              className="block text-sm font-semibold text-slate-700 mb-2"
+            >
               Company name
             </label>
             <input
+              id="companyName"
+              name="companyName"
               type="text"
               required
-              className="w-full px-4 py-3 rounded-xl border border-slate-300"
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3]"
+              value={formData.companyName}
               onChange={(e) =>
                 setFormData({ ...formData, companyName: e.target.value })
               }
@@ -131,17 +129,20 @@ export default function AssessmentForm() {
 
           {/* Sector */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
+            <label
+              htmlFor="sector"
+              className="block text-sm font-semibold text-slate-700 mb-2"
+            >
               Business sector
             </label>
             <select
+              id="sector"
+              name="sector"
               value={formData.sector}
-              className="w-full px-4 py-3 rounded-xl border"
+              required
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3]"
               onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  sector: e.target.value as CarbonInput['sector']
-                })
+                setFormData({ ...formData, sector: e.target.value as CarbonInput['sector'] })
               }
             >
               <option value="services">Services</option>
@@ -154,13 +155,18 @@ export default function AssessmentForm() {
 
           {/* Revenue */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
+            <label
+              htmlFor="revenue"
+              className="block text-sm font-semibold text-slate-700 mb-2"
+            >
               Annual revenue (€)
             </label>
             <input
+              id="revenue"
+              name="revenue"
               type="number"
               required
-              className="w-full px-4 py-3 rounded-xl border"
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3]"
               onChange={(e) =>
                 setFormData({ ...formData, revenue: Number(e.target.value) })
               }
@@ -168,38 +174,49 @@ export default function AssessmentForm() {
           </div>
 
           {/* Energy costs */}
-          <div className="bg-slate-50 rounded-xl p-6 space-y-4">
-            <p className="text-sm font-semibold text-slate-700">
+          <fieldset className="bg-slate-50 rounded-xl p-6 space-y-4">
+            <legend className="text-sm font-semibold text-slate-700">
               Energy-related expenses (annual)
-            </p>
+            </legend>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="number"
-                placeholder="Fuel expenses (€)"
-                className="w-full px-4 py-3 rounded-xl border"
-                onChange={(e) =>
-                  setFormData({ ...formData, fuelSpent: Number(e.target.value) })
-                }
-              />
 
-              <input
-                type="number"
-                placeholder="Electricity expenses (€)"
-                className="w-full px-4 py-3 rounded-xl border"
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    electricitySpent: Number(e.target.value)
-                  })
-                }
-              />
+              <div>
+                <label htmlFor="fuelSpent" className="block text-sm mb-1 text-slate-700">
+                  Fuel expenses (€)
+                </label>
+                <input
+                  id="fuelSpent"
+                  name="fuelSpent"
+                  type="number"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3]"
+                  onChange={(e) =>
+                    setFormData({ ...formData, fuelSpent: Number(e.target.value) })
+                  }
+                />
+              </div>
+
+              <div>
+                <label htmlFor="electricitySpent" className="block text-sm mb-1 text-slate-700">
+                  Electricity expenses (€)
+                </label>
+                <input
+                  id="electricitySpent"
+                  name="electricitySpent"
+                  type="number"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3]"
+                  onChange={(e) =>
+                    setFormData({ ...formData, electricitySpent: Number(e.target.value) })
+                  }
+                />
+              </div>
+
             </div>
-          </div>
+          </fieldset>
 
           <button
             type="submit"
-            className="w-full bg-[#1FB6C1] text-white font-bold py-4 rounded-xl"
+            className="w-full bg-[#0A8AA3] text-white font-bold py-4 rounded-xl hover:bg-[#09778B]"
           >
             Calculate my footprint
           </button>
@@ -232,18 +249,16 @@ export default function AssessmentForm() {
               {results.total} tCO₂e
             </p>
 
-            {/* PAYMENT BUTTON */}
             <button
               onClick={handleStripe}
-              className="w-full bg-[#1FB6C1] text-white font-bold py-4 rounded-xl mb-3"
+              className="w-full bg-[#0A8AA3] text-white font-bold py-4 rounded-xl mb-3 hover:bg-[#09778B]"
             >
               Download official attestation (€99)
             </button>
 
-            {/* TEST BUTTON */}
             <button
               onClick={handleTestAttestation}
-              className="w-full bg-orange-500 text-white font-bold py-4 rounded-xl"
+              className="w-full bg-orange-500 text-white font-bold py-4 rounded-xl hover:bg-orange-600"
             >
               TEST — Generate attestation (no payment)
             </button>
@@ -252,4 +267,4 @@ export default function AssessmentForm() {
       )}
     </div>
   );
-        }
+      }
