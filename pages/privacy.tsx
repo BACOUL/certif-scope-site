@@ -1,6 +1,57 @@
+import Head from "next/head";
+
 export default function Privacy() {
   return (
     <>
+      <Head>
+        <title>Privacy Policy — Certif-Scope</title>
+
+        <meta
+          name="description"
+          content="Certif-Scope operates with a strict no-storage policy. No financial data, company information, emissions results, or personal identifiers are collected or retained."
+        />
+
+        <link rel="canonical" href="https://certif-scope.com/privacy" />
+        <meta name="robots" content="index, follow" />
+
+        {/* OpenGraph */}
+        <meta property="og:title" content="Privacy Policy — Certif-Scope" />
+        <meta
+          property="og:description"
+          content="Learn how Certif-Scope ensures GDPR compliance with a strict no-data-storage architecture."
+        />
+        <meta property="og:url" content="https://certif-scope.com/privacy" />
+        <meta property="og:type" content="article" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Privacy Policy — Certif-Scope" />
+        <meta
+          name="twitter:description"
+          content="Certif-Scope does not collect or store user data. All calculations run locally in your browser."
+        />
+
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "PrivacyPolicy",
+              name: "Certif-Scope Privacy Policy",
+              url: "https://certif-scope.com/privacy",
+              description:
+                "Certif-Scope operates with a strict no-storage policy and performs all calculations locally, ensuring maximum GDPR compliance.",
+              publisher: {
+                "@type": "Organization",
+                name: "Certif-Scope",
+                url: "https://certif-scope.com"
+              }
+            })
+          }}
+        />
+      </Head>
+
       <div className="w-full min-h-screen bg-white text-[#334155] font-sans" id="top">
 
         {/* HEADER */}
@@ -30,8 +81,8 @@ export default function Privacy() {
 
           <p className="text-center text-[#475569] max-w-[700px] mx-auto mb-12">
             This privacy policy explains how Certif-Scope handles information in compliance with EU law,
-            with a strict “no storage” approach. The service is designed to operate without collecting or
-            retaining user data.
+            using a strict <strong>no-storage</strong> architecture. The service operates fully without
+            collecting or retaining user data.
           </p>
 
           {/* 1 — Data handling principles */}
@@ -40,73 +91,73 @@ export default function Privacy() {
               1. Data handling principles
             </h2>
             <p className="text-[#475569] leading-relaxed text-sm">
-              Certif-Scope follows a privacy-first architecture:
+              Certif-Scope follows a privacy-first model:
             </p>
 
             <ul className="list-disc ml-6 mt-3 text-sm text-[#475569] leading-relaxed">
               <li>No account creation</li>
               <li>No cookies for tracking or analytics</li>
               <li>No user profiling</li>
-              <li>No retention of raw data entered in the assessment</li>
-              <li>No transmission of calculation inputs to any server</li>
+              <li>No retention of assessment inputs</li>
+              <li>No transmission of calculation inputs to servers</li>
             </ul>
 
             <p className="text-sm text-[#475569] mt-4">
-              All calculations are performed locally in the user’s browser.
+              All calculations occur locally in the user’s browser.
             </p>
           </section>
 
-          {/* 2 — What data is not stored */}
+          {/* 2 — Data not stored */}
           <section className="mb-14">
             <h2 className="text-2xl font-black text-[#0B3A63] mb-4">
               2. Information that is not stored
             </h2>
 
             <p className="text-sm text-[#475569] leading-relaxed">
-              Certif-Scope does <strong>not</strong> store the following information:
+              Certif-Scope does <strong>not</strong> store:
             </p>
 
             <ul className="list-disc ml-6 mt-3 text-sm text-[#475569] leading-relaxed">
               <li>company name</li>
-              <li>industry category</li>
-              <li>annual expenditure inputs</li>
-              <li>kilowatt-hour usage or fuel data</li>
-              <li>calculated emissions results</li>
-              <li>downloaded PDF contents</li>
-              <li>IP address or device identifiers</li>
+              <li>sector/industry information</li>
+              <li>revenue or expenditure inputs</li>
+              <li>electricity or fuel values</li>
+              <li>calculated emissions (Scopes 1, 2, 3)</li>
+              <li>PDF data or document content</li>
+              <li>IP addresses or device identifiers</li>
             </ul>
           </section>
 
-          {/* 3 — What is stored */}
+          {/* 3 — Stored data */}
           <section className="mb-14">
             <h2 className="text-2xl font-black text-[#0B3A63] mb-4">
               3. What data is stored
             </h2>
 
             <p className="text-sm text-[#475569] leading-relaxed">
-              Only the <strong>attestation ID</strong> and its <strong>file integrity hash (SHA-256)</strong>
-              are stored in the verification registry, for the sole purpose of enabling independent validation.
+              Only the <strong>attestation ID</strong> and its <strong>SHA-256 integrity hash</strong>
+              are stored for verification purposes.
             </p>
 
             <p className="text-sm text-[#475569] mt-3">
-              No other user information is associated or linked to the registry entry.
+              No personal or business data is linked to this registry entry.
             </p>
           </section>
 
           {/* 4 — Legal basis */}
           <section className="mb-14">
             <h2 className="text-2xl font-black text-[#0B3A63] mb-4">
-              4. Legal basis under EU law
+              4. Legal basis under GDPR
             </h2>
 
             <p className="text-sm text-[#475569] leading-relaxed">
-              Under GDPR (Regulation 2016/679), the service operates on the following legal basis:
+              Under GDPR (Regulation 2016/679), the following principles apply:
             </p>
 
             <ul className="list-disc ml-6 mt-3 text-sm text-[#475569] leading-relaxed">
-              <li><strong>Art. 6(1)(b)</strong> — the attestation requires minimal data processing to be generated</li>
-              <li><strong>Art. 6(1)(c)</strong> — regulatory pre-compliance for ESG documentation</li>
-              <li><strong>Art. 5(1)(c)</strong> — strict data minimisation</li>
+              <li><strong>Art. 6(1)(b)</strong> — minimal processing required to generate the attestation</li>
+              <li><strong>Art. 6(1)(c)</strong> — ESG pre-compliance documentation</li>
+              <li><strong>Art. 5(1)(c)</strong> — strict minimisation of processed data</li>
               <li><strong>Art. 5(1)(e)</strong> — no storage beyond necessity</li>
             </ul>
           </section>
@@ -118,12 +169,12 @@ export default function Privacy() {
             </h2>
 
             <p className="text-sm text-[#475569] leading-relaxed">
-              Certif-Scope does not use external analytics or tracking services.
+              Certif-Scope does not use analytics, tracking, advertising networks, or third-party monitoring tools.
             </p>
 
             <p className="text-sm text-[#475569] mt-3 leading-relaxed">
-              Payment processing (if applicable) is handled by Stripe.  
-              No payment details transit through or are stored by Certif-Scope.
+              Payments (if applicable) are securely processed by Stripe.  
+              Certif-Scope does not store credit card or billing information.
             </p>
           </section>
 
@@ -135,13 +186,12 @@ export default function Privacy() {
 
             <p className="text-sm text-[#475569] leading-relaxed">
               Since no personal data is stored, most GDPR rights (access, rectification, deletion)
-              are not applicable.  
-              However, users may request information regarding:
+              do not apply. Users may however request:
             </p>
 
             <ul className="list-disc ml-6 mt-3 text-sm text-[#475569] leading-relaxed">
-              <li>registry entries for attestation ID + hash</li>
-              <li>removal of a registry entry if requested by the original issuer</li>
+              <li>review of registry entries linked to an attestation ID</li>
+              <li>removal of an entry upon justified request</li>
             </ul>
           </section>
 
@@ -151,12 +201,12 @@ export default function Privacy() {
               Contact
             </h2>
             <p className="text-[#475569] text-sm">
-              For privacy-related inquiries:<br />
+              For privacy-related questions:<br />
               <a
-                href="mailto:contact@timeproofs.io"
+                href="mailto:support@certif-scope.com"
                 className="text-[#1FB6C1] font-semibold"
               >
-                contact@timeproofs.io
+                support@certif-scope.com
               </a>
             </p>
           </section>
