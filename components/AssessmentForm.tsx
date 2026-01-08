@@ -77,14 +77,14 @@ export default function AssessmentForm() {
     <div className="space-y-12">
 
       <div>
-        <h2 className="text-3xl font-bold text-[#0B3A63] mb-3">Carbon Assessment — SME</h2>
-        <p className="text-sm text-[#475569] max-w-2xl">
-          Enter annual data below. This simplified assessment follows GHG Protocol screening methodology.
-          Only available data is required. Leave blank if unknown.
+        <h2 className="text-2xl font-bold text-[#0B3A63] mb-2">Carbon Assessment — SME</h2>
+        <p className="text-xs text-[#475569] max-w-2xl leading-relaxed">
+          Enter annual activity data. This simplified model uses GHG Protocol screening factors.
+          Leave fields blank if unknown.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         <div>
           <label className="font-semibold text-sm">Reporting Year</label>
@@ -94,7 +94,6 @@ export default function AssessmentForm() {
             onChange={(e) => setYear(parseInt(e.target.value))}
             className="w-full mt-1 p-3 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Year for which emissions are estimated.</p>
         </div>
 
         <div>
@@ -109,8 +108,8 @@ export default function AssessmentForm() {
             <option value="manufacturing">Manufacturing</option>
             <option value="construction">Construction</option>
             <option value="transport">Transport</option>
+            <option value="other">Other / Mixed Activity</option>
           </select>
-          <p className="text-xs text-slate-500 mt-1">Used to contextualize Scope 3 intensity.</p>
         </div>
 
         <div>
@@ -121,7 +120,6 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("fuel", e.target.value)}
             className="w-full mt-1 p-3 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Company fleet and internal vehicles.</p>
         </div>
 
         <div>
@@ -132,7 +130,6 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("electricity", e.target.value)}
             className="w-full mt-1 p-3 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Office or workshop electricity consumption.</p>
         </div>
 
         <div>
@@ -143,7 +140,6 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("gas", e.target.value)}
             className="w-full mt-1 p-3 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Heating fuel for buildings.</p>
         </div>
 
         <div>
@@ -154,7 +150,6 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("train", e.target.value)}
             className="w-full mt-1 p-3 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Professional travel by train within EU.</p>
         </div>
 
         <div>
@@ -165,7 +160,6 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("flight", e.target.value)}
             className="w-full mt-1 p-3 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Short/medium/long haul business flights.</p>
         </div>
 
         <div>
@@ -176,7 +170,6 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("hotel", e.target.value)}
             className="w-full mt-1 p-3 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Total nights spent during business trips.</p>
         </div>
 
         <div>
@@ -187,7 +180,6 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("it", e.target.value)}
             className="w-full mt-1 p-3 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Computers, servers, networking.</p>
         </div>
 
         <div>
@@ -198,7 +190,6 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("services", e.target.value)}
             className="w-full mt-1 p-3 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Consultants, subcontractors, agencies.</p>
         </div>
 
         <div>
@@ -209,8 +200,8 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("logistics", e.target.value)}
             className="w-full mt-1 p-3 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Freight transport, parcel shipments.</p>
         </div>
+
       </div>
 
       <button
@@ -221,64 +212,60 @@ export default function AssessmentForm() {
       </button>
 
       {result && (
-        <div ref={resultRef} className="mt-12 bg-[#0B3A63] text-white p-10 rounded-xl shadow-xl space-y-8">
+        <div ref={resultRef} className="mt-10 bg-[#0B3A63] text-white p-6 rounded-xl shadow-xl space-y-6">
 
-          <h3 className="text-2xl font-bold">Results — Year {result.year}</h3>
+          <h3 className="text-xl font-bold">Results — {result.year}</h3>
 
-          <div className="text-4xl font-extrabold">
+          <div className="text-2xl font-extrabold">
             Total CO₂e: {result.total} kg / year
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
 
             <div>
-              <div className="font-semibold text-lg">Scope 1 — Direct Emissions</div>
-              <div className="text-sm opacity-80 mb-1">Fuel combustion & building heating</div>
-              <div className="w-full h-3 bg-white/20 rounded">
-                <div
-                  className="h-3 bg-[#1FB6C1] rounded transition-all"
-                  style={{ width: barWidth(result.scope1, result.total) }}
-                ></div>
+              <div className="font-semibold">Scope 1 — Direct</div>
+              <div className="w-full h-2 bg-white/20 rounded">
+                <div className="h-2 bg-[#1FB6C1] rounded" style={{ width: barWidth(result.scope1, result.total) }}></div>
               </div>
-              <div className="mt-1 font-bold">{result.scope1} kg</div>
+              <div className="text-sm mt-1">{result.scope1} kg</div>
             </div>
 
             <div>
-              <div className="font-semibold text-lg">Scope 2 — Indirect Energy</div>
-              <div className="text-sm opacity-80 mb-1">Electricity consumption</div>
-              <div className="w-full h-3 bg-white/20 rounded">
-                <div
-                  className="h-3 bg-[#4FD1C5] rounded transition-all"
-                  style={{ width: barWidth(result.scope2, result.total) }}
-                ></div>
+              <div className="font-semibold">Scope 2 — Electricity</div>
+              <div className="w-full h-2 bg-white/20 rounded">
+                <div className="h-2 bg-[#4FD1C5] rounded" style={{ width: barWidth(result.scope2, result.total) }}></div>
               </div>
-              <div className="mt-1 font-bold">{result.scope2} kg</div>
+              <div className="text-sm mt-1">{result.scope2} kg</div>
             </div>
 
             <div>
-              <div className="font-semibold text-lg">Scope 3 — Value Chain</div>
-              <div className="text-sm opacity-80 mb-1">Travel + goods + external services</div>
-              <div className="w-full h-3 bg-white/20 rounded">
-                <div
-                  className="h-3 bg-[#A3BFFA] rounded transition-all"
-                  style={{ width: barWidth(result.scope3, result.total) }}
-                ></div>
+              <div className="font-semibold">Scope 3 — Value Chain</div>
+              <div className="w-full h-2 bg-white/20 rounded">
+                <div className="h-2 bg-[#A3BFFA] rounded" style={{ width: barWidth(result.scope3, result.total) }}></div>
               </div>
-              <div className="mt-1 font-bold">{result.scope3} kg</div>
+              <div className="text-sm mt-1">{result.scope3} kg</div>
             </div>
 
           </div>
 
-          <button className="w-full bg-white text-[#0B3A63] font-bold py-4 rounded-lg text-lg shadow-md mt-6">
+          <button className="w-full bg-white text-[#0B3A63] font-bold py-3 rounded-lg text-lg shadow-md">
             Generate Attestation (PDF)
           </button>
 
-          <div className="text-xs opacity-70 mt-6">
-            Emission factors based on consolidated GHG Protocol / DEFRA 2023 datasets.
-            Suitable for SME baseline reporting and supply-chain documentation.
+          <div className="text-[10px] opacity-70">
+            Emission factors: GHG Protocol / DEFRA 2023.
           </div>
+        </div>
+      )}
+
+      {/* Sticky CTA Mobile */}
+      {result && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white py-3 px-4 shadow-lg md:hidden z-50">
+          <button className="w-full bg-[#1FB6C1] text-white font-bold py-3 rounded-lg">
+            Download Attestation (PDF)
+          </button>
         </div>
       )}
     </div>
   );
-}
+            }
