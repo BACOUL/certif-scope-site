@@ -85,9 +85,8 @@ export default function AssessmentForm() {
     }
   }, [results]);
 
-
   return (
-    <div className="max-w-2xl mx-auto space-y-12">
+    <div className="max-w-2xl mx-auto space-y-12" role="region" aria-label="Carbon assessment form">
 
       {/* FORM */}
       <form
@@ -96,10 +95,10 @@ export default function AssessmentForm() {
         className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden"
       >
         <div className="px-8 py-6 border-b border-slate-200">
-          <h3 id="assessment-title" className="text-lg font-bold text-[#0B3A63]">
+          <h3 id="assessment-title" className="text-lg font-bold text-[#08384F]">
             Carbon footprint assessment
           </h3>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-600 mt-1">
             Free preview · No account required · Local calculation
           </p>
         </div>
@@ -110,7 +109,7 @@ export default function AssessmentForm() {
           <div>
             <label
               htmlFor="companyName"
-              className="block text-sm font-semibold text-slate-700 mb-2"
+              className="block text-sm font-semibold text-slate-800 mb-2"
             >
               Company name
             </label>
@@ -119,11 +118,9 @@ export default function AssessmentForm() {
               name="companyName"
               type="text"
               required
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3]"
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3] focus:border-[#0A8AA3]"
               value={formData.companyName}
-              onChange={(e) =>
-                setFormData({ ...formData, companyName: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
             />
           </div>
 
@@ -131,7 +128,7 @@ export default function AssessmentForm() {
           <div>
             <label
               htmlFor="sector"
-              className="block text-sm font-semibold text-slate-700 mb-2"
+              className="block text-sm font-semibold text-slate-800 mb-2"
             >
               Business sector
             </label>
@@ -140,10 +137,8 @@ export default function AssessmentForm() {
               name="sector"
               value={formData.sector}
               required
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3]"
-              onChange={(e) =>
-                setFormData({ ...formData, sector: e.target.value as CarbonInput['sector'] })
-              }
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3] focus:border-[#0A8AA3]"
+              onChange={(e) => setFormData({ ...formData, sector: e.target.value as CarbonInput['sector'] })}
             >
               <option value="services">Services</option>
               <option value="retail">Retail</option>
@@ -157,7 +152,7 @@ export default function AssessmentForm() {
           <div>
             <label
               htmlFor="revenue"
-              className="block text-sm font-semibold text-slate-700 mb-2"
+              className="block text-sm font-semibold text-slate-800 mb-2"
             >
               Annual revenue (€)
             </label>
@@ -166,45 +161,41 @@ export default function AssessmentForm() {
               name="revenue"
               type="number"
               required
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3]"
-              onChange={(e) =>
-                setFormData({ ...formData, revenue: Number(e.target.value) })
-              }
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3] focus:border-[#0A8AA3]"
+              onChange={(e) => setFormData({ ...formData, revenue: Number(e.target.value) })}
             />
           </div>
 
-          {/* Energy costs */}
-          <fieldset className="bg-slate-50 rounded-xl p-6 space-y-4">
-            <legend className="text-sm font-semibold text-slate-700">
+          {/* ENERGY COSTS */}
+          <fieldset className="bg-slate-50 rounded-xl p-6 space-y-4 border border-slate-200">
+            <legend className="text-sm font-semibold text-slate-800">
               Energy-related expenses (annual)
             </legend>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               <div>
-                <label htmlFor="fuelSpent" className="block text-sm mb-1 text-slate-700">
+                <label htmlFor="fuelSpent" className="block text-sm mb-1 text-slate-800">
                   Fuel expenses (€)
                 </label>
                 <input
                   id="fuelSpent"
                   name="fuelSpent"
                   type="number"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3]"
-                  onChange={(e) =>
-                    setFormData({ ...formData, fuelSpent: Number(e.target.value) })
-                  }
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3] focus:border-[#0A8AA3]"
+                  onChange={(e) => setFormData({ ...formData, fuelSpent: Number(e.target.value) })}
                 />
               </div>
 
               <div>
-                <label htmlFor="electricitySpent" className="block text-sm mb-1 text-slate-700">
+                <label htmlFor="electricitySpent" className="block text-sm mb-1 text-slate-800">
                   Electricity expenses (€)
                 </label>
                 <input
                   id="electricitySpent"
                   name="electricitySpent"
                   type="number"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3]"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0A8AA3] focus:border-[#0A8AA3]"
                   onChange={(e) =>
                     setFormData({ ...formData, electricitySpent: Number(e.target.value) })
                   }
@@ -225,8 +216,12 @@ export default function AssessmentForm() {
 
       {/* RESULTS */}
       {results && (
-        <div ref={resultsRef} className="bg-white rounded-2xl border p-8 shadow-lg">
-          <h3 className="text-xl font-bold mb-6 text-center text-[#0B3A63]">
+        <div
+          ref={resultsRef}
+          aria-live="polite"
+          className="bg-white rounded-2xl border p-8 shadow-lg"
+        >
+          <h3 className="text-xl font-bold mb-6 text-center text-[#08384F]">
             Carbon footprint preview
           </h3>
 
@@ -238,14 +233,14 @@ export default function AssessmentForm() {
             ].map(([label, value]) => (
               <div key={label} className="border rounded-xl p-4 text-center bg-slate-50">
                 <p className="text-xs uppercase text-slate-500 mb-1">{label}</p>
-                <p className="text-xl font-bold text-[#0B3A63]">{value} tCO₂e</p>
+                <p className="text-xl font-bold text-[#08384F]">{value} tCO₂e</p>
               </div>
             ))}
           </div>
 
           <div className="text-center">
-            <p className="text-sm text-slate-500 mb-1">Estimated total footprint</p>
-            <p className="text-3xl font-extrabold text-[#0B3A63] mb-6">
+            <p className="text-sm text-slate-600 mb-1">Estimated total footprint</p>
+            <p className="text-3xl font-extrabold text-[#08384F] mb-6">
               {results.total} tCO₂e
             </p>
 
@@ -258,7 +253,7 @@ export default function AssessmentForm() {
 
             <button
               onClick={handleTestAttestation}
-              className="w-full bg-orange-500 text-white font-bold py-4 rounded-xl hover:bg-orange-600"
+              className="w-full bg-orange-600 text-white font-bold py-4 rounded-xl hover:bg-orange-700"
             >
               TEST — Generate attestation (no payment)
             </button>
@@ -267,4 +262,4 @@ export default function AssessmentForm() {
       )}
     </div>
   );
-      }
+                }
