@@ -19,6 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     "localhost",
     "127.0.0.1",
     "certif-scope.com",
+    "certif-scope-1l9lckqit-jeason1.vercel.app",
     "vercel.app"
   ];
 
@@ -190,4 +191,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       details: err.message
     });
   }
-      }
+        }
