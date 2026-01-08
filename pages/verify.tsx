@@ -7,7 +7,6 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Load query params auto-filled (QR codes, PDF links)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -55,9 +54,7 @@ export default function VerifyPage() {
             registry = await r.json();
             break;
           }
-        } catch {
-          continue;
-        }
+        } catch {}
       }
 
       if (!registry || !Array.isArray(registry.attestations)) {
@@ -85,7 +82,8 @@ export default function VerifyPage() {
     /^[a-f0-9]{64}$/i.test(hash.trim());
 
   return (
-    <>
+    <div className="w-full min-h-screen bg-white text-[#334155] font-sans" id="top">
+
       {/* HEADER */}
       <div className="sticky top-0 bg-white border-b border-[#E2E8F0] py-4 px-6 md:px-12 z-40 shadow-sm">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between">
@@ -101,18 +99,18 @@ export default function VerifyPage() {
         </div>
       </div>
 
-      {/* MAIN CONTAINER */}
-      <div className="max-w-[1200px] mx-auto pt-10 px-6 md:px-12 pb-20 text-[#334155]">
+      {/* MAIN CONTENT */}
+      <div className="max-w-[900px] mx-auto pt-14 px-6 md:px-12 pb-28">
 
-        <h1 className="text-3xl md:text-4xl font-black text-[#0B3A63] text-center mb-2">
+        <h1 className="text-3xl md:text-4xl font-black text-center text-[#0B3A63] mb-4">
           Verify Attestation
         </h1>
 
-        <p className="text-sm text-center text-[#475569] mb-10">
-          Independent cryptographic verification of CO₂ attestations
+        <p className="text-center text-[#475569] text-sm mb-8">
+          Independent automated validation of ID + SHA-256 hash
         </p>
 
-        {/* FORM CONTAINER */}
+        {/* FORM */}
         <div className="bg-white border border-[#E2E8F0] rounded-xl p-8 shadow-sm max-w-xl mx-auto space-y-6">
 
           <div>
@@ -122,7 +120,7 @@ export default function VerifyPage() {
               value={id}
               onChange={(e) => setId(e.target.value)}
               className="mt-2 w-full border border-[#CBD5E1] rounded-lg p-3 text-sm"
-              placeholder="Auto-filled if scanning QR code"
+              placeholder="Auto-filled via QR code"
             />
           </div>
 
@@ -146,10 +144,9 @@ export default function VerifyPage() {
           >
             {loading ? "Verifying..." : "Verify Attestation"}
           </button>
-
         </div>
 
-        {/* ERROR MESSAGE */}
+        {/* ERROR */}
         {error && (
           <p className="text-center mt-6 text-red-600 font-semibold">{error}</p>
         )}
@@ -160,12 +157,8 @@ export default function VerifyPage() {
 
             {result.valid ? (
               <>
-                <h2 className="text-2xl font-black text-[#0B3A63] mb-2 text-center">
+                <p className="text-green-600 font-bold text-xl text-center mb-4">
                   ✔ VALID — Official Record Found
-                </h2>
-
-                <p className="text-[#475569] text-center mb-6">
-                  This attestation exists in the Certif-Scope verification registry.
                 </p>
 
                 <div className="text-sm text-[#475569] space-y-1">
@@ -176,13 +169,11 @@ export default function VerifyPage() {
               </>
             ) : (
               <>
-                <h2 className="text-2xl font-black text-red-600 mb-2 text-center">
-                  ✖ INVALID — No Record Found
-                </h2>
-
-                <p className="text-[#475569] text-center">
-                  The provided ID and hash do not match any registered attestation.  
-                  The document may be altered or not issued by Certif-Scope.
+                <p className="text-red-600 font-bold text-xl text-center mb-4">
+                  ✖ INVALID — No Matching Record
+                </p>
+                <p className="text-sm text-center text-[#475569]">
+                  The ID + hash are not present in the Certif-Scope registry.
                 </p>
               </>
             )}
@@ -194,10 +185,15 @@ export default function VerifyPage() {
         <div className="text-center mt-10 text-xs text-[#475569] space-x-6">
           <a href="/legal" className="text-[#1FB6C1] hover:text-[#0B3A63]">Legal</a>
           <a href="/privacy" className="text-[#1FB6C1] hover:text-[#0B3A63]">Privacy</a>
-          <a href="/refund-policy" className="text-[#1FB6C1] hover:text-[#0B3A63]">Refund Policy</a>
+          <a href="/terms" className="text-[#1FB6C1] hover:text-[#0B3A63]">Terms & Refund</a>
         </div>
 
+        <div className="text-center mt-8 mb-24">
+          <a href="#top" className="text-[#1FB6C1] hover:text-[#0B3A63] font-semibold">
+            Back to top ↑
+          </a>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
