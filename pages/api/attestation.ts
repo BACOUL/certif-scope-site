@@ -24,17 +24,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const attestationId = uuidv4();
     const now = new Date();
 
+    // Correct and flexible detection of deployment URL
     const baseUrl =
-      req.headers.origin ||
+      (req.headers.origin as string) ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
       process.env.NEXT_PUBLIC_BASE_URL ||
-      "https://certif-scope.com";
+      "http://localhost:3000";
 
     const s1 = Number(report.scope1 || 0);
     const s2 = Number(report.scope2 || 0);
     const s3 = Number(report.scope3 || 0);
     const total = Number(report.total || 0);
 
-    // === FIRST PASS (NO QR, NO HASH) ===
+    // === FIRST PASS: PDF without QR / without HASH ===
     const htmlInitial = fillAttestationTemplate({
       attestationId,
       issueDate: now.toISOString(),
@@ -73,14 +75,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await browser1.close();
 
-    // === HASH BASED ON RAW PDF ===
+    // === HASH FROM RAW PDF ===
     const pdfHash = computeHash(tmpPdfBuffer);
 
-    // === QR CODE for Final PDF ===
+    // === GENERATE QR CODE URL ===
     const verifyUrl = `${baseUrl}/verify?id=${attestationId}&hash=${pdfHash}`;
     const qrDataUrl = await QRCode.toDataURL(verifyUrl);
 
-    // === FINAL PASS WITH QR + HASH ===
+    // === SECOND PASS: PDF WITH QR + HASH ===
     const htmlFinal = fillAttestationTemplate({
       attestationId,
       issueDate: now.toISOString(),
@@ -114,12 +116,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await browser2.close();
 
-    // === REGISTER IN DATABASE / LOG ===
-    await fetch(`${baseUrl}/api/register-attestation`, {
+    // === REGISTER THE ATTESTATION ===
+    const regResponse = await fetch(`${baseUrl}/api/register-attestation`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: attestationId, hash: pdfHash })
     });
+
+    if (!regResponse.ok) {
+      console.error("Registry update failed:", await regResponse.text());
+    }
 
     return res.status(200).json({
       id: attestationId,
