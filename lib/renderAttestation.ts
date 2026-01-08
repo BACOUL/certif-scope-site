@@ -1,88 +1,77 @@
-// ===============================
-// Type complet avec QR_CODE
-// ===============================
+// =========================================
+// RENDER ATTESTATION — VERSION COMPLÈTE
+// Compatible avec attestationTemplate.ts
+// =========================================
+
+import { attestationTemplate } from "./attestationTemplate";
+
 export type AttestationData = {
-  COMPANY_NAME: string;
-  BUSINESS_SECTOR: string;
-  COUNTRY: string;
-  ASSESSMENT_PERIOD: string;
+  attestationId: string;
+  issueDate: string;
+  preparedOn: string;
+  companyName: string;
+  sector: string;
+  country: string;
+  period: string;
 
-  SCOPE_1: string;
-  SCOPE_2: string;
-  SCOPE_3: string;
-  TOTAL: string;
+  scope1: number;
+  scope2: number;
+  scope3: number;
+  total: number;
 
-  ATTESTATION_ID: string;
-  ISSUE_DATE_UTC: string;
-  GENERATION_TIMESTAMP: string;
-  METHODOLOGY_VERSION: string;
-
-  QR_CODE: string;
+  methodologyVersion?: string;
+  qrCodeUrl?: string;
+  hash?: string;
+  generationTimestamp?: string;
 };
 
-// ===============================
-// Fonction de rendu HTML
-// ===============================
-export function renderAttestationHTML(data: AttestationData): string {
-  let html = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Carbon Footprint Attestation — Certif-Scope</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-</head>
+export function fillAttestationTemplate(data: AttestationData): string {
+  const total = Number(data.total || 0);
+  const s1 = Number(data.scope1 || 0);
+  const s2 = Number(data.scope2 || 0);
+  const s3 = Number(data.scope3 || 0);
 
-<body style="font-family: Arial, sans-serif; padding: 20px;">
+  const pct1 = total > 0 ? ((s1 / total) * 100).toFixed(1) : "0";
+  const pct2 = total > 0 ? ((s2 / total) * 100).toFixed(1) : "0";
+  const pct3 = total > 0 ? ((s3 / total) * 100).toFixed(1) : "0";
 
-  <h1>Carbon Footprint Attestation</h1>
+  const fullHash = String(data.hash || "PENDING");
+  const shortHash = fullHash.substring(0, 8);
 
-  <p><strong>Company:</strong> {{COMPANY_NAME}}</p>
-  <p><strong>Business sector:</strong> {{BUSINESS_SECTOR}}</p>
-  <p><strong>Country:</strong> {{COUNTRY}}</p>
-  <p><strong>Assessment period:</strong> {{ASSESSMENT_PERIOD}}</p>
+  const map: Record<string, string> = {
+    ATTESTATION_ID: data.attestationId || "",
+    ISSUE_DATE_UTC: (data.issueDate || new Date().toISOString()).split("T")[0],
+    PREPARED_ON: (data.preparedOn || data.issueDate || new Date().toISOString()).split("T")[0],
 
-  <h2>Emissions</h2>
-  <p><strong>Scope 1:</strong> {{SCOPE_1}} tCO₂e</p>
-  <p><strong>Scope 2:</strong> {{SCOPE_2}} tCO₂e</p>
-  <p><strong>Scope 3:</strong> {{SCOPE_3}} tCO₂e</p>
-  <p><strong>Total:</strong> {{TOTAL}} tCO₂e</p>
+    COMPANY_NAME: data.companyName || "",
+    BUSINESS_SECTOR: data.sector || "",
+    COUNTRY: data.country || "France",
+    ASSESSMENT_PERIOD: data.period || new Date().getFullYear().toString(),
 
-  <h2>Attestation details</h2>
-  <p><strong>Attestation ID:</strong> {{ATTESTATION_ID}}</p>
-  <p><strong>Issue date (UTC):</strong> {{ISSUE_DATE_UTC}}</p>
-  <p><strong>Generated at:</strong> {{GENERATION_TIMESTAMP}}</p>
-  <p><strong>Methodology version:</strong> {{METHODOLOGY_VERSION}}</p>
+    SCOPE_1: s1.toFixed(2),
+    SCOPE_2: s2.toFixed(2),
+    SCOPE_3: s3.toFixed(2),
+    TOTAL: total.toFixed(2),
 
-  <h2>Verification</h2>
-  <p>Scan the QR code below to verify authenticity:</p>
-  <img src="{{QR_CODE}}" alt="Verification QR Code" style="width:180px; height:180px;" />
+    SCOPE_1_PERCENT: pct1,
+    SCOPE_2_PERCENT: pct2,
+    SCOPE_3_PERCENT: pct3,
 
-  <hr style="margin-top:30px; margin-bottom:20px;">
+    METHODOLOGY_VERSION: data.methodologyVersion || "3.1",
+    GENERATION_TIMESTAMP: data.generationTimestamp || new Date().toISOString(),
 
-  <p style="font-size:13px; color:#444;">
-    <strong>Issued by:</strong> Certif-Scope — Filiale de TimeProofs<br/>
-    TimeProofs — Entrepreneur individuel · SIREN 999356439 · France<br/>
-    Contact: support@certif-scope.com
-  </p>
+    QR_CODE: data.qrCodeUrl
+      ? `<img src="${data.qrCodeUrl}" width="120" height="120" alt="QR Code Verification" />`
+      : "",
 
-  <p style="font-size:13px; color:#444; margin-top:20px;">
-    <strong>Legal Notice:</strong><br>
-    This attestation is a methodological estimation based on user-provided data.
-    It is not an audit, not a third-party verified carbon footprint,
-    and not a CSRD-compliant sustainability report. Calculations are performed
-    using a standardized screening-level model and results may differ from
-    activity-based approaches or certified audits. Certif-Scope and TimeProofs
-    cannot be held responsible for incorrect inputs or third-party interpretations.
-  </p>
+    HASH: fullHash,
+    HASH_SHORT: shortHash
+  };
 
-</body>
-</html>
-`;
+  let html = attestationTemplate;
 
-  // Injection sécurisée des valeurs
-  for (const [key, value] of Object.entries(data)) {
-    html = html.replaceAll(`{{${key}}}`, value);
+  for (const key in map) {
+    html = html.replace(new RegExp(`{{${key}}}`, "g"), String(map[key]));
   }
 
   return html;
