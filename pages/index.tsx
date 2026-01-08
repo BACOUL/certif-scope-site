@@ -77,7 +77,6 @@ export default function Home() {
               <line x1="4" y1="18" x2="20" y2="18" />
             </svg>
           </button>
-
         </div>
 
         {menuOpen && (
@@ -93,40 +92,47 @@ export default function Home() {
       </header>
 
       {/* ================= HERO SECTION ================ */}
-      <section className="max-w-6xl mx-auto px-6 pt-16 pb-20 text-center">
+      <section className="max-w-6xl mx-auto px-6 pt-16 pb-16 text-center">
 
-        <h1 className="text-4xl md:text-5xl font-black text-[#0B3A63] mb-4 leading-tight">
+        <h1 className="text-4xl md:text-5xl font-black text-[#0B3A63] mb-3 leading-tight">
           Instant Certified Carbon Attestation for SMEs
         </h1>
 
-        <h2 className="text-lg md:text-xl font-semibold text-[#1FB6C1] mb-5">
+        <h2 className="text-lg md:text-xl font-semibold text-[#1FB6C1] mb-4">
           Scope 1 • Scope 2 • Scope 3 Emissions
         </h2>
 
-        <p className="text-lg text-[#475569] max-w-3xl mx-auto mb-10">
-          Generate a certified carbon footprint attestation instantly.  
+        <p className="text-lg text-[#475569] max-w-3xl mx-auto mb-8">
+          Generate a certified carbon footprint attestation instantly.
           Trusted by European banks, procurement teams and insurers.
         </p>
 
+        {/* ---- CTA buttons ---- */}
         <div className="flex flex-col md:flex-row justify-center gap-4 mt-6">
 
           <a
             href="#assessment"
-            className="bg-[#1FB6C1] text-white font-bold px-8 py-4 rounded-xl shadow text-lg"
+            className="bg-[#1FB6C1] text-white font-bold px-8 py-3 rounded-xl shadow text-lg"
           >
             Generate Attestation
           </a>
 
           <Link
             href="/verify"
-            className="bg-[#0B3A63] text-white font-bold px-8 py-4 rounded-xl shadow text-lg"
+            className="bg-[#0B3A63] text-white font-bold px-8 py-3 rounded-xl shadow text-lg"
           >
             Verify Attestation
           </Link>
 
         </div>
 
-        <div className="mt-6 flex flex-col items-center">
+        {/* ---- Proof social simple sans chiffres ---- */}
+        <p className="mt-6 text-sm font-medium text-[#0B3A63] opacity-80">
+          Trusted by financial institutions and procurement teams across Europe
+        </p>
+
+        {/* ---- Link sample ---- */}
+        <div className="mt-4 flex flex-col items-center">
           <Link href="/sample-pdf" className="text-sm underline text-[#1FB6C1] font-medium">
             View sample attestation
           </Link>
@@ -208,8 +214,7 @@ export default function Home() {
         <p className="text-center text-[#475569] max-w-3xl mx-auto mb-10">
           Certif-Scope uses a spend-based calculation aligned with the GHG Protocol.
           Emissions are derived from monetary activity and standardized emission factors
-          covering Scope 1, Scope 2, and Scope 3. This method is recognized for SMEs
-          under proportionality rules across EU procurement and ESG screening.
+          covering Scope 1, Scope 2, and Scope 3.
         </p>
       </section>
 
@@ -235,7 +240,6 @@ export default function Home() {
             <summary className="font-bold text-[#0B3A63] cursor-pointer">Is it compliant with ESG requirements?</summary>
             <p className="mt-2 text-sm">Yes, aligned with EU proportionality rules.</p>
           </details>
-
         </div>
       </section>
 
