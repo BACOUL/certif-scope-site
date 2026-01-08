@@ -3,6 +3,7 @@ import { useState } from "react";
 export default function AssessmentForm() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [data, setData] = useState({
+    sector: "services",
     electricity: "",
     gas: "",
     diesel: "",
@@ -65,6 +66,7 @@ export default function AssessmentForm() {
   return (
     <div className="space-y-10">
 
+      {/* HEADER */}
       <div>
         <h2 className="text-2xl font-bold text-[#0B3A63] mb-2">Carbon Assessment (SME)</h2>
         <p className="text-sm text-[#475569]">
@@ -72,6 +74,7 @@ export default function AssessmentForm() {
         </p>
       </div>
 
+      {/* FORM GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
         <div>
@@ -91,11 +94,11 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("sector", e.target.value)}
             className="w-full mt-1 p-2 border rounded"
           >
-            <option>Services</option>
-            <option>Retail</option>
-            <option>Construction</option>
-            <option>Manufacturing</option>
-            <option>Transport</option>
+            <option value="services">Services</option>
+            <option value="retail">Retail</option>
+            <option value="construction">Construction</option>
+            <option value="manufacturing">Manufacturing</option>
+            <option value="transport">Transport</option>
           </select>
         </div>
 
@@ -107,7 +110,6 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("diesel", e.target.value)}
             className="w-full mt-1 p-2 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Diesel or gasoline — internal fleet</p>
         </div>
 
         <div>
@@ -118,7 +120,6 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("electricity", e.target.value)}
             className="w-full mt-1 p-2 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Offices / warehouse / building</p>
         </div>
 
         <div>
@@ -129,7 +130,6 @@ export default function AssessmentForm() {
             onChange={(e) => handleChange("gas", e.target.value)}
             className="w-full mt-1 p-2 border rounded"
           />
-          <p className="text-xs text-slate-500 mt-1">Heating consumption</p>
         </div>
 
         <div>
@@ -153,4 +153,66 @@ export default function AssessmentForm() {
         </div>
 
         <div>
-          <label className="font-semibold text-sm">Hotel Nights
+          <label className="font-semibold text-sm">Hotel Nights</label>
+          <input
+            type="number"
+            value={data.hotel}
+            onChange={(e) => handleChange("hotel", e.target.value)}
+            className="w-full mt-1 p-2 border rounded"
+          />
+        </div>
+
+        <div>
+          <label className="font-semibold text-sm">IT Equipment (€)</label>
+          <input
+            type="number"
+            value={data.it}
+            onChange={(e) => handleChange("it", e.target.value)}
+            className="w-full mt-1 p-2 border rounded"
+          />
+        </div>
+
+        <div>
+          <label className="font-semibold text-sm">External Services (€)</label>
+          <input
+            type="number"
+            value={data.services}
+            onChange={(e) => handleChange("services", e.target.value)}
+            className="w-full mt-1 p-2 border rounded"
+          />
+        </div>
+
+        <div>
+          <label className="font-semibold text-sm">Goods Logistics (€)</label>
+          <input
+            type="number"
+            value={data.logistics}
+            onChange={(e) => handleChange("logistics", e.target.value)}
+            className="w-full mt-1 p-2 border rounded"
+          />
+        </div>
+
+      </div>
+
+      {/* SUBMIT */}
+      <button
+        onClick={calculate}
+        className="w-full bg-[#1FB6C1] text-white py-3 rounded-lg font-bold"
+      >
+        Calculate Emissions
+      </button>
+
+      {/* RESULT */}
+      {result && (
+        <div className="mt-10 bg-[#0B3A63] text-white p-6 rounded-xl space-y-3">
+          <h3 className="text-xl font-bold">Results – Year {result.year}</h3>
+          <p>Total CO₂e: {result.total} kg/year</p>
+          <p>Scope 1: {result.scope1} kg</p>
+          <p>Scope 2: {result.scope2} kg</p>
+          <p>Scope 3: {result.scope3} kg</p>
+        </div>
+      )}
+
+    </div>
+  );
+}
