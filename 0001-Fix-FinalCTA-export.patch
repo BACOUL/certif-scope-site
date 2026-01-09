@@ -1,0 +1,39 @@
+From c128015cd5d1dd87bcc72e2ef0b821271cb34891 Mon Sep 17 00:00:00 2001
+From: TonPseudoGitHub <ton@email>
+Date: Fri, 9 Jan 2026 10:09:18 +0100
+Subject: [PATCH] Fix FinalCTA export
+
+---
+ components/home/FinalCTA.jsx | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/components/home/FinalCTA.jsx b/components/home/FinalCTA.jsx
+index e69de29b..2db067c5 100644
+--- a/components/home/FinalCTA.jsx
++++ b/components/home/FinalCTA.jsx
+@@ -0,0 +1,22 @@
++export default function FinalCTA() {
++  return (
++    <section className="py-20 bg-white text-slate-900 text-center">
++      <div className="max-w-4xl mx-auto px-6">
++        <h2 className="text-3xl font-bold mb-6">
++          Ready to Get Your Verified Carbon Attestation?
++        </h2>
++
++        <p className="text-lg text-slate-600 mb-8">
++          Simple, instant, verifiable. Start your carbon compliance journey now.
++        </p>
++
++        <a
++          href="#assessment"
++          className="inline-block px-8 py-4 bg-slate-900 text-white rounded-lg font-semibold"
++        >
++          Start Now
++        </a>
++      </div>
++    </section>
++  );
++}
+-- 
+2.52.0
+
