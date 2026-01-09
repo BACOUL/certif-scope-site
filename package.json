@@ -12,6 +12,7 @@
     "@stripe/stripe-js": "1.54.2",
     "@tailwindcss/postcss": "latest",
     "chrome-aws-lambda": "10.1.0",
+    "classnames": "^2.5.1",
     "jspdf": "^4.0.0",
     "lucide-react": "latest",
     "next": "latest",
