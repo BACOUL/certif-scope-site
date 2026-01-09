@@ -1,13 +1,1 @@
-/* Reset minimal */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Global font */
-body {
-  font-family: system-ui, sans-serif;
-  background: #ffffff;
-  color: #111111;
-}
+@import "tailwindcss";
